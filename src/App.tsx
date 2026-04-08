@@ -11,6 +11,12 @@ const InstagramIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 );
 
+const FacebookIcon = ({ size = 20 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
 const ScrollReveal = ({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -244,7 +250,8 @@ const Footer = () => (
             <h3 className="text-2xl font-serif font-bold text-stone-900 mb-6">Entre Mar y Tierra</h3>
             <p className="text-stone-600 mb-6">El sabor de la cocina valdiviana en un ambiente cálido y familiar.</p>
             <div className="flex gap-4">
-              <a href="https://www.instagram.com/entremarytierra2025/" target="_blank" rel="noopener noreferrer" className="p-2 bg-stone-200 rounded-full hover:bg-amber-600 hover:text-white transition-all text-stone-600"><InstagramIcon size={20} /></a>
+               <a href="https://www.instagram.com/entremarytierra2025/" target="_blank" rel="noopener noreferrer" className="p-2 bg-stone-200 rounded-full hover:bg-amber-600 hover:text-white transition-all text-stone-600"><InstagramIcon size={20} /></a>
+               <a href="https://www.facebook.com/entre.mar.tierra" target="_blank" rel="noopener noreferrer" className="p-2 bg-stone-200 rounded-full hover:bg-amber-600 hover:text-white transition-all text-stone-600"><FacebookIcon size={20} /></a>
             </div>
           </div>
         </ScrollReveal>
