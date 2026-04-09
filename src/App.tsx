@@ -47,7 +47,7 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Inicio', href: '#inicio' },
     { name: 'Nuestra Carta', href: '#menu' },
-    { name: 'Historia', href: '#historia' },
+    { name: 'Nosotros', href: '#historia' },
     { name: 'Contacto', href: '#contacto' },
   ];
 
@@ -56,7 +56,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <img src="/estesiqsi.png" alt="Logo" className="h-8 w-8" />
+            <img src={`https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_128,h_128,f_auto,q_auto/logo_ylk3nu`} alt="Logo" className="h-14 w-14" />
             <div className="text-amber-500 font-serif italic text-2xl font-bold">Entre Mar y Tierra</div>
           </div>
           
@@ -249,6 +249,7 @@ const Footer = () => (
           <div>
             <h3 className="text-2xl font-serif font-bold text-stone-900 mb-6">Entre Mar y Tierra</h3>
             <p className="text-stone-600 mb-6">El sabor de la cocina valdiviana en un ambiente cálido y familiar.</p>
+            <h4 className="text-xl font-serif font-bold text-stone-900 mb-4">Síguenos</h4>
             <div className="flex gap-4">
                <a href="https://www.instagram.com/entremarytierra2025/" target="_blank" rel="noopener noreferrer" className="p-2 bg-stone-200 rounded-full hover:bg-amber-600 hover:text-white transition-all text-stone-600"><InstagramIcon size={20} /></a>
                <a href="https://www.facebook.com/entre.mar.tierra" target="_blank" rel="noopener noreferrer" className="p-2 bg-stone-200 rounded-full hover:bg-amber-600 hover:text-white transition-all text-stone-600"><FacebookIcon size={20} /></a>
