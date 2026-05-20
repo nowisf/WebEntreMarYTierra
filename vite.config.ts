@@ -13,6 +13,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), viteSingleFile()],
   server: {
     port: 3000,
+    watch: {
+      usePolling: true,
+    },
   },
   resolve: {
     alias: {
