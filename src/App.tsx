@@ -19,14 +19,14 @@ const FacebookIcon = ({ size = 20 }: { size?: number }) => (
 
 const ScrollReveal = ({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-      transition={{ duration: 0.7, delay, ease: "easeOut" }}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
@@ -39,38 +39,42 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navLinks = [
     { name: 'Inicio', href: '#inicio' },
-    { name: 'Nuestra Carta', href: '#menu' },
+    { name: 'Carta', href: '#menu' },
     { name: 'Nosotros', href: '#historia' },
     { name: 'Contacto', href: '#contacto' },
   ];
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-stone-900/95 backdrop-blur-sm py-2' : 'bg-transparent py-4'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'bg-bark/95 backdrop-blur-sm py-3' : 'bg-transparent py-5'}`}>
+      <div className="max-w-6xl mx-auto px-6">
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <img src={`https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_128,h_128,f_auto,q_auto/logo_ylk3nu`} alt="Logo" className="h-14 w-14" />
-            <div className="text-amber-500 font-serif italic text-2xl font-bold">Entre Mar y Tierra</div>
-          </div>
-          
-          <div className="hidden md:flex space-x-8">
+          <a href="#inicio" className="flex items-center gap-3">
+            <img
+              src={`https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_128,h_128,f_auto,q_auto/logo_ylk3nu`}
+              alt="Logo"
+              className="h-12 w-12 rounded-full"
+            />
+            <div className="font-serif italic text-xl font-bold text-cream">Entre Mar y Tierra</div>
+          </a>
+
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a key={link.name} href={link.href} className="text-stone-100 hover:text-amber-500 transition-colors font-medium">
+              <a key={link.name} href={link.href} className="text-cream/80 hover:text-terra-light transition-colors duration-300 font-sans text-sm tracking-wide uppercase">
                 {link.name}
               </a>
             ))}
           </div>
 
           <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-stone-100 p-2">
-              {isOpen ? <X size={28} /> : <MenuIcon size={28} />}
+            <button onClick={() => setIsOpen(!isOpen)} className="text-cream p-2" aria-label="Menú">
+              {isOpen ? <X size={24} /> : <MenuIcon size={24} />}
             </button>
           </div>
         </div>
@@ -78,18 +82,19 @@ const Navbar = () => {
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-stone-900 border-t border-stone-800"
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+            className="md:hidden bg-bark/98 backdrop-blur-md"
           >
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <div className="px-6 py-4 space-y-1">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="block px-3 py-2 text-stone-100 hover:text-amber-500 text-base font-medium"
+                  className="block py-3 text-cream/90 hover:text-terra-light font-sans text-base"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.name}
@@ -104,40 +109,38 @@ const Navbar = () => {
 };
 
 const Hero = () => (
-  <section id="inicio" className="relative h-screen flex items-center justify-center overflow-hidden">
-    <div className="absolute inset-0 z-0">
-      <img 
-        src={`https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_1920,h_1080,c_fill,g_auto,f_auto,q_auto/fachada_entre_mar_y_tierra_valdivia_1_iodei8`} 
-        alt="Entre Mar y Tierra Fachada" 
-        className="w-full h-full object-cover scale-105"
+  <section id="inicio" className="relative h-screen flex items-end overflow-hidden">
+    <div className="absolute inset-0">
+      <img
+        src={`https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_1920,h_1080,c_fill,g_auto,f_auto,q_auto/fachada_entre_mar_y_tierra_valdivia_1_iodei8`}
+        alt="Fachada de Entre Mar y Tierra en Valdivia"
+        className="w-full h-full object-cover"
       />
-      <div className="absolute inset-0 bg-black/50"></div>
+      <div className="absolute inset-0 bg-gradient-to-t from-bark via-bark/40 to-bark/20" />
     </div>
-    
-    <div className="relative z-10 text-center px-4">
+
+    <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pb-24 md:pb-32">
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       >
-        <span className="text-amber-400 font-serif italic text-xl md:text-2xl mb-4 block">Tradición Valdiviana</span>
-        <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-6">Entre Mar y Tierra</h1>
-        <p className="text-stone-200 text-lg md:text-xl max-w-2xl mx-auto mb-8 font-light">
+        <p className="text-terra-light font-serif italic text-lg md:text-xl mb-3">Tradición Valdiviana</p>
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-black text-cream leading-[0.95] mb-6">
+          Entre Mar<br />y Tierra
+        </h1>
+        <p className="text-cream/70 text-lg md:text-xl max-w-lg mb-10 font-light leading-relaxed">
           Calidez, frescura, sabor y carácter.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="#menu" className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-full transition-all duration-300 font-medium">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <a href="#menu" className="inline-block bg-terra hover:bg-terra-hover text-cream px-8 py-3.5 transition-colors duration-300 font-sans text-sm tracking-wide uppercase">
             Ver la Carta
           </a>
-          <a href="tel:+56443673951" className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-8 py-3 rounded-full border border-white/30 transition-all duration-300 font-medium">
+          <a href="tel:+56443673951" className="inline-block bg-cream/10 hover:bg-cream/20 text-cream px-8 py-3.5 transition-colors duration-300 font-sans text-sm tracking-wide uppercase">
             Reservar Mesa
           </a>
         </div>
       </motion.div>
-    </div>
-    
-    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
-      <div className="w-1 h-12 rounded-full bg-gradient-to-b from-amber-500 to-transparent"></div>
     </div>
   </section>
 );
@@ -146,7 +149,7 @@ const MenuSection = () => {
   const categories = [
     {
       title: "Desde el Mar",
-      icon: <Anchor className="text-blue-400" />,
+      icon: <Anchor className="text-sage" size={22} />,
       items: [
         { name: "Chupe de Locos", desc: "Suave crema con locos picados y queso gratinado.", price: "$14.500" },
         { name: "Congrio a la Valdiviana", desc: "El clásico caldo con huevo escalfado y papas rústicas.", price: "$12.900" },
@@ -155,7 +158,7 @@ const MenuSection = () => {
     },
     {
       title: "De la Tierra",
-      icon: <Mountain className="text-amber-700" />,
+      icon: <Mountain className="text-terra" size={22} />,
       items: [
         { name: "Costillar de Cerdo al Horno", desc: "Adobado en ají color y servido con puré picante.", price: "$13.800" },
         { name: "Plateada en su Jugo", desc: "Cocción lenta de 8 horas con guarnición de charquicán.", price: "$12.500" },
@@ -165,32 +168,31 @@ const MenuSection = () => {
   ];
 
   return (
-    <section id="menu" className="py-24 bg-stone-50">
-      <div className="max-w-6xl mx-auto px-4">
+    <section id="menu" className="py-20 md:py-28 bg-cream">
+      <div className="max-w-6xl mx-auto px-6">
         <ScrollReveal>
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-serif font-bold text-stone-900 mb-4">Nuestra Carta</h2>
-            <div className="w-24 h-1 bg-amber-600 mx-auto"></div>
-            <p className="mt-4 text-stone-600">Sabores caseros preparados con ingredientes de productores locales.</p>
+          <div className="mb-16">
+            <h2 className="text-4xl md:text-5xl font-serif font-black text-earth leading-tight">Nuestra Carta</h2>
+            <p className="mt-3 text-earth-light font-sans text-base">Sabores caseros preparados con ingredientes de productores locales.</p>
           </div>
         </ScrollReveal>
 
-        <div className="grid md:grid-cols-2 gap-12">
+        <div className="space-y-20 md:space-y-28">
           {categories.map((cat, idx) => (
-            <ScrollReveal key={idx} delay={idx * 0.2}>
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-stone-100">
-                <div className="flex items-center gap-3 mb-8">
+            <ScrollReveal key={idx} delay={idx * 0.1}>
+              <div>
+                <div className="flex items-center gap-3 mb-10">
                   {cat.icon}
-                  <h3 className="text-2xl font-serif font-bold text-stone-800">{cat.title}</h3>
+                  <h3 className="text-3xl md:text-4xl font-serif font-bold text-earth">{cat.title}</h3>
                 </div>
-                <div className="space-y-8">
+                <div className="space-y-0">
                   {cat.items.map((item, i) => (
-                    <div key={i} className="flex justify-between items-start group">
-                      <div>
-                        <h4 className="font-bold text-stone-900 group-hover:text-amber-700 transition-colors">{item.name}</h4>
-                        <p className="text-stone-500 text-sm">{item.desc}</p>
+                    <div key={i} className={`flex justify-between items-start py-6 ${i < cat.items.length - 1 ? 'border-b border-earth/10' : ''}`}>
+                      <div className="pr-4">
+                        <h4 className="font-sans font-bold text-earth text-lg">{item.name}</h4>
+                        <p className="text-earth-light/70 text-sm mt-1 max-w-md">{item.desc}</p>
                       </div>
-                      <span className="font-serif font-bold text-amber-800">{item.price}</span>
+                      <span className="font-serif font-bold text-terra text-lg whitespace-nowrap">{item.price}</span>
                     </div>
                   ))}
                 </div>
@@ -198,9 +200,9 @@ const MenuSection = () => {
             </ScrollReveal>
           ))}
         </div>
-        
-        <ScrollReveal delay={0.4}>
-          <p className="mt-12 text-center italic text-stone-500 font-serif">* Menú sujeto a disponibilidad de temporada.</p>
+
+        <ScrollReveal delay={0.3}>
+          <p className="mt-16 text-center italic text-earth-light/60 font-serif text-sm">Menú sujeto a disponibilidad de temporada.</p>
         </ScrollReveal>
       </div>
     </section>
@@ -208,33 +210,39 @@ const MenuSection = () => {
 };
 
 const History = () => (
-  <section id="historia" className="py-24 bg-stone-900 text-stone-100 overflow-hidden">
-    <div className="max-w-6xl mx-auto px-4">
-      <div className="flex flex-col md:flex-row items-center gap-12">
-        <ScrollReveal className="md:w-1/2">
-          <h2 className="text-4xl font-serif font-bold mb-6">Nuestra Esencia</h2>
-          <p className="text-stone-400 leading-relaxed mb-6 italic text-lg">
-            "Donde lo simpático conoce lo exquisito."
-          </p>
-          <p className="text-stone-300 leading-relaxed mb-6">
-            En <strong>Entre Mar y Tierra</strong> aprovechamos los frutos del mar, del huerto y la parrilla para crear un amplio menú lleno de delicias para todo gusto. Los invitamos a probar nuestra experiencia y buen trato, ¡aquí lo memorable viene como garantía!
-          </p>
-          <div className="grid grid-cols-2 gap-6 mt-8">
-            <div className="border-l-2 border-amber-600 pl-4">
-              <h4 className="text-amber-500 font-bold text-2xl">15+</h4>
-              <p className="text-sm text-stone-400 font-medium">Años de Tradición</p>
+  <section id="historia" className="py-20 md:py-28 bg-earth text-cream overflow-hidden">
+    <div className="max-w-6xl mx-auto px-6">
+      <div className="flex flex-col md:flex-row gap-16 md:gap-20">
+        <div className="md:w-3/5">
+          <ScrollReveal>
+            <h2 className="text-4xl md:text-5xl font-serif font-black leading-tight mb-8">Nuestra Esencia</h2>
+            <p className="text-cream/50 font-serif italic text-xl md:text-2xl leading-relaxed mb-8">
+              "Donde lo simpático conoce lo exquisito."
+            </p>
+            <p className="text-cream/70 leading-relaxed text-base md:text-lg mb-10 max-w-xl">
+              En <strong className="text-cream">Entre Mar y Tierra</strong> aprovechamos los frutos del mar, del huerto y la parrilla para crear un amplio menú lleno de delicias para todo gusto. Los invitamos a probar nuestra experiencia y buen trato, aquí lo memorable viene como garantía.
+            </p>
+            <div className="flex gap-12">
+              <div>
+                <p className="font-serif font-black text-terra-light text-3xl">15+</p>
+                <p className="text-cream/40 text-sm mt-1 font-sans">Años de Tradición</p>
+              </div>
+              <div>
+                <p className="font-serif font-black text-sage-light text-3xl">100%</p>
+                <p className="text-cream/40 text-sm mt-1 font-sans">Ingredientes Locales</p>
+              </div>
             </div>
-            <div className="border-l-2 border-amber-600 pl-4">
-              <h4 className="text-amber-500 font-bold text-2xl">100%</h4>
-              <p className="text-sm text-stone-400 font-medium">Ingredientes Locales</p>
-            </div>
+          </ScrollReveal>
+        </div>
+
+        <ScrollReveal className="md:w-2/5" delay={0.15}>
+          <div className="aspect-[3/4] bg-earth-mid rounded-lg overflow-hidden">
+            <img
+              src={`https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_800,h_1000,c_fill,g_auto,f_auto,q_auto/fachada_entre_mar_y_tierra_valdivia_1_iodei8`}
+              alt="Fachada del restaurante Entre Mar y Tierra en Valdivia"
+              className="w-full h-full object-cover"
+            />
           </div>
-        </ScrollReveal>
-        <ScrollReveal className="md:w-1/2 relative" delay={0.2}>
-          <div className="aspect-square bg-stone-800 rounded-2xl overflow-hidden shadow-2xl rotate-3">
-             <img src={`https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_800,h_800,c_fill,g_auto,f_auto,q_auto/fachada_entre_mar_y_tierra_valdivia_1_iodei8`} alt="Entre Mar y Tierra Fachada" className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700" />
-          </div>
-          <div className="absolute -bottom-6 -left-6 w-48 h-48 bg-amber-600/20 backdrop-blur-xl rounded-2xl -z-10 -rotate-6 border border-amber-600/30"></div>
         </ScrollReveal>
       </div>
     </div>
@@ -242,36 +250,39 @@ const History = () => (
 );
 
 const Footer = () => (
-  <footer id="contacto" className="bg-stone-50 pt-20 pb-10">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="grid md:grid-cols-2 gap-12 mb-16">
+  <footer id="contacto" className="bg-white pt-20 pb-10">
+    <div className="max-w-6xl mx-auto px-6">
+      <div className="grid md:grid-cols-2 gap-16 mb-16">
         <ScrollReveal>
           <div>
-            <h3 className="text-2xl font-serif font-bold text-stone-900 mb-6">Entre Mar y Tierra</h3>
-            <p className="text-stone-600 mb-6">El sabor de la cocina valdiviana en un ambiente cálido y familiar.</p>
-            <h4 className="text-xl font-serif font-bold text-stone-900 mb-4">Síguenos</h4>
-            <div className="flex gap-4">
-               <a href="https://www.instagram.com/entremarytierra2025/" target="_blank" rel="noopener noreferrer" className="p-2 bg-stone-200 rounded-full hover:bg-amber-600 hover:text-white transition-all text-stone-600"><InstagramIcon size={20} /></a>
-               <a href="https://www.facebook.com/entre.mar.tierra" target="_blank" rel="noopener noreferrer" className="p-2 bg-stone-200 rounded-full hover:bg-amber-600 hover:text-white transition-all text-stone-600"><FacebookIcon size={20} /></a>
+            <h3 className="text-2xl font-serif font-black text-earth mb-4">Entre Mar y Tierra</h3>
+            <p className="text-earth-light/60 mb-8 text-sm leading-relaxed max-w-sm">El sabor de la cocina valdiviana en un ambiente cálido y familiar.</p>
+            <div className="flex gap-3">
+              <a href="https://www.instagram.com/entremarytierra2025/" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-earth/5 rounded-full hover:bg-terra hover:text-white transition-all duration-300 text-earth-light">
+                <InstagramIcon size={18} />
+              </a>
+              <a href="https://www.facebook.com/entre.mar.tierra" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-earth/5 rounded-full hover:bg-terra hover:text-white transition-all duration-300 text-earth-light">
+                <FacebookIcon size={18} />
+              </a>
             </div>
           </div>
         </ScrollReveal>
-        
+
         <ScrollReveal delay={0.1}>
-          <div className="space-y-4">
-            <h4 className="font-bold text-stone-900 mb-6">Ubícanos</h4>
-            <div className="flex items-start gap-3 text-stone-600">
-              <MapPin className="text-amber-700 mt-1 shrink-0" size={20} />
-              <p>Carlos Anwandter 511,<br />Valdivia, Región de Los Ríos, Chile</p>
+          <div className="space-y-5">
+            <h4 className="font-sans font-bold text-earth text-sm tracking-wide uppercase mb-6">Ubícanos</h4>
+            <div className="flex items-start gap-3 text-earth-light/70">
+              <MapPin className="text-terra mt-0.5 shrink-0" size={18} />
+              <p className="text-sm leading-relaxed">Carlos Anwandter 511,<br />Valdivia, Región de Los Ríos, Chile</p>
             </div>
-            <div className="flex items-center gap-3 text-stone-600">
-              <Phone className="text-amber-700 shrink-0" size={20} />
-              <p>44 367 3951</p>
+            <div className="flex items-center gap-3 text-earth-light/70">
+              <Phone className="text-terra shrink-0" size={18} />
+              <a href="tel:+56443673951" className="text-sm hover:text-earth transition-colors">44 367 3951</a>
             </div>
-            <div className="flex items-start gap-3 text-stone-600">
-              <Clock className="text-amber-700 mt-1 shrink-0" size={20} />
-              <div>
-                <p>Lun - Sáb: 12:30 a 23:00</p>
+            <div className="flex items-start gap-3 text-earth-light/70">
+              <Clock className="text-terra mt-0.5 shrink-0" size={18} />
+              <div className="text-sm leading-relaxed">
+                <p>Lun a Sáb: 12:30 a 23:00</p>
                 <p>Dom: 12:30 a 18:00</p>
               </div>
             </div>
@@ -280,22 +291,22 @@ const Footer = () => (
       </div>
 
       <ScrollReveal>
-        <div className="rounded-2xl overflow-hidden shadow-md mb-12">
+        <div className="rounded-lg overflow-hidden mb-12">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2486.8!2d-73.2456!3d-39.8142!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9615ed9b9b9b9b9b%3A0x0!2sCarlos+Anwandter+511%2C+Valdivia%2C+Los+R%C3%ADos%2C+Chile!5e0!3m2!1ses!2scl!4v1700000000000"
             width="100%"
-            height="300"
+            height="280"
             style={{ border: 0 }}
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            title="Ubicación Entre Mar y Tierra - Valdivia"
-          ></iframe>
+            title="Ubicación Entre Mar y Tierra, Valdivia"
+          />
         </div>
       </ScrollReveal>
-      
-      <div className="border-t border-stone-200 pt-8 text-center text-stone-500 text-sm">
-        <p>&copy; {new Date().getFullYear()} Entre Mar y Tierra - Valdivia, Chile. Todos los derechos reservados.</p>
+
+      <div className="border-t border-earth/10 pt-8 text-center text-earth-light/40 text-xs">
+        <p>&copy; {new Date().getFullYear()} Entre Mar y Tierra, Valdivia. Todos los derechos reservados.</p>
       </div>
     </div>
   </footer>
@@ -303,7 +314,7 @@ const Footer = () => (
 
 function App() {
   return (
-    <div className="min-h-screen bg-stone-50 font-sans selection:bg-amber-200 selection:text-amber-900">
+    <div className="min-h-screen bg-cream font-sans selection:bg-terra/20 selection:text-earth">
       <Navbar />
       <Hero />
       <Gallery />
