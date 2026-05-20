@@ -250,7 +250,7 @@ const History = () => (
 );
 
 const Footer = () => (
-  <footer id="contacto" className="bg-white pt-20 pb-10">
+  <footer id="contacto" className="bg-sand pt-20 pb-10">
     <div className="max-w-6xl mx-auto px-6">
       <div className="grid md:grid-cols-2 gap-16 mb-16">
         <ScrollReveal>
