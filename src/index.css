@@ -10,8 +10,8 @@
 }
 
 @theme {
-  --font-serif: "TheBoldFont", "Spectral", Georgia, serif;
-  --font-sans: "TheBoldFont", "Source Sans 3", system-ui, sans-serif;
+  --font-serif: "Spectral", Georgia, "Times New Roman", serif;
+  --font-sans: "Source Sans 3", system-ui, sans-serif;
 
   --color-cream: oklch(0.96 0.01 75);
   --color-cream-dark: oklch(0.92 0.012 75);
