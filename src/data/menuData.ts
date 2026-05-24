@@ -18,10 +18,9 @@ export interface MenuCategory {
 export const menuData: MenuCategory[] = [
   {
     id: "aperitivos",
-    name: "Aperitivos de la Casa",
+    name: "Aperitivos",
     sections: [
       {
-        name: "Aperitivos",
         items: [
           { name: "Ponche de Mariscos", price: "$9.900", desc: "Con erizos, picorocos, camarones y ostras." },
           { name: "Vaso Borgoña", price: "$4.500" },
@@ -322,7 +321,6 @@ export const menuData: MenuCategory[] = [
     name: "Salsas y Salteados",
     sections: [
       {
-        name: "Salsas y Salteados",
         items: [
           { name: "Salsa Gran Duque", price: "$9.500" },
           { name: "Salsa Margarita", price: "$5.800" },
@@ -365,7 +363,6 @@ export const menuData: MenuCategory[] = [
     name: "Postres",
     sections: [
       {
-        name: "Postres",
         items: [
           { name: "Murta con Membrillo", price: "$5.500" },
           { name: "Puré de Castañas", price: "$6.500" },
