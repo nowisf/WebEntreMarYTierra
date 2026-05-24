@@ -70,23 +70,6 @@ const thematicGroups = [
       "ninos",
       "compartir"
     ]
-  },
-  {
-    name: "Acompañamientos",
-    categoryIds: ["guarniciones", "salsas-salteados", "ensaladas"]
-  },
-  {
-    name: "Para Cerrar",
-    categoryIds: [
-      "postres",
-      "bebidas-calientes",
-      "tragos-preparados",
-      "cocteles-tragos",
-      "rocas",
-      "bebestibles-otros",
-      "ninos",
-      "compartir"
-    ]
   }
 ];
 
