@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "TheBoldFont";
+  src: url("/fonts/TheBoldFont.woff") format("woff"),
+       url("/fonts/TheBoldFont.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  --font-serif: "Spectral", Georgia, "Times New Roman", serif;
-  --font-sans: "Source Sans 3", system-ui, sans-serif;
+  --font-serif: "TheBoldFont", "Spectral", Georgia, serif;
+  --font-sans: "TheBoldFont", "Source Sans 3", system-ui, sans-serif;
 
   --color-cream: oklch(0.96 0.01 75);
   --color-cream-dark: oklch(0.92 0.012 75);
