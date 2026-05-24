@@ -283,11 +283,21 @@ export default function MenuTabs() {
                 transition={{ duration: 0.3 }}
                 className="space-y-12 md:space-y-16"
               >
-                <div>
+                <div className="relative pb-4 mb-4">
                   {/* Main Category Header */}
-                  <h3 className="text-3xl md:text-4xl font-serif font-black text-earth border-b border-earth/10 pb-4 mb-4">
+                  <h3 className="text-3xl md:text-4xl font-serif font-black text-earth">
                     {currentCategory.name}
                   </h3>
+                  {/* Subtle background border track */}
+                  <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-earth/10" />
+                  {/* Animated Underline */}
+                  <motion.div
+                    key={`${activeTab}-underline`}
+                    initial={{ width: 0 }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+                    className="absolute bottom-0 left-0 h-[3px] bg-terra"
+                  />
                 </div>
 
                 {currentCategory.sections.map((section, secIdx) => (
