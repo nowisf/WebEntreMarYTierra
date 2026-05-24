@@ -1,38 +1,23 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, Users, ChefHat } from 'lucide-react';
+import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, ChefHat, Flame } from 'lucide-react';
 import { menuData, MenuCategory, MenuItem } from '../data/menuData';
 
-// Map categories to beautiful and descriptive icons
+// Map 13 categories to beautiful icons
 const categoryIcons: Record<string, React.ReactNode> = {
-  entradas: <Sparkles size={18} />,
-  "platos-mar": <Fish size={18} />,
-  "platos-tierra": <Beef size={18} />,
+  aperitivos: <Wine size={18} />,
+  sours: <Wine size={18} />,
+  cervezas: <Wine size={18} />,
+  "entradas-mar": <Fish size={18} />,
+  "entradas-tierra": <Sparkles size={18} />,
+  "fondos-mar": <Fish size={18} />,
+  "fondos-tierra": <Beef size={18} />,
   tradicionales: <Utensils size={18} />,
-  "compartir-ninos": <Users size={18} />,
-  "acompanamientos-ensaladas": <ChefHat size={18} />,
-  "postres-cafeteria": <Coffee size={18} />,
-  "bebidas-tragos": <Wine size={18} />
-};
-
-// Helper to assign colors to badges
-const getTagStyles = (tag: string) => {
-  switch (tag.toLowerCase()) {
-    case 'recomendado':
-    case 'especialidad':
-    case 'destacado':
-      return 'bg-terra/10 text-terra border-terra/20';
-    case 'local':
-    case 'clásico valdiviano':
-      return 'bg-sage/10 text-sage border-sage/20';
-    case 'típico':
-    case 'hecho en casa':
-      return 'bg-earth-light/10 text-earth border-earth-light/20';
-    case 'para compartir':
-      return 'bg-amber-700/10 text-amber-800 border-amber-700/20';
-    default:
-      return 'bg-earth/5 text-earth/60 border-earth/10';
-  }
+  guarniciones: <ChefHat size={18} />,
+  "salsas-salteados": <Flame size={18} />,
+  postres: <Coffee size={18} />,
+  tragos: <Wine size={18} />,
+  rocas: <Wine size={18} />
 };
 
 export default function MenuTabs() {
@@ -220,18 +205,6 @@ export default function MenuTabs() {
                             </p>
                           )}
                         </div>
-                        {item.tags && item.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-3">
-                            {item.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className={`text-[10px] px-2.5 py-0.5 rounded-full border font-sans font-semibold tracking-wider uppercase ${getTagStyles(tag)}`}
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </motion.div>
                     ))}
                   </div>
@@ -288,20 +261,6 @@ export default function MenuTabs() {
                               </p>
                             )}
                           </div>
-
-                          {/* Item Badges */}
-                          {item.tags && item.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5 mt-3">
-                              {item.tags.map((tag) => (
-                                <span
-                                  key={tag}
-                                  className={`text-[10px] px-2.5 py-0.5 rounded-full border font-sans font-semibold tracking-wider uppercase ${getTagStyles(tag)}`}
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
                         </div>
                       ))}
                     </div>
