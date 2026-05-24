@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, ChefHat, Flame } from 'lucide-react';
+import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, ChefHat, Flame, ChevronLeft, ChevronRight } from 'lucide-react';
 import { menuData, MenuCategory, MenuItem } from '../data/menuData';
 
 // Map 26 categories to beautiful icons
@@ -76,16 +76,8 @@ const thematicGroups = [
 export default function MenuTabs() {
   const [activeTab, setActiveTab] = useState<string>(menuData[0].id);
   const [searchQuery, setSearchQuery] = useState<string>('');
-
-  const handleTabClick = (catId: string) => {
-    setActiveTab(catId);
-    setTimeout(() => {
-      const el = document.getElementById('menu-content');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-  };
+  const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
+  const [showArrows, setShowArrows] = useState<boolean>(false);
 
   // Global search filtering
   const searchResults = useMemo(() => {
@@ -117,6 +109,64 @@ export default function MenuTabs() {
     return menuData.find((cat) => cat.id === activeTab) || menuData[0];
   }, [activeTab]);
 
+  const handleTabClick = (catId: string) => {
+    setActiveTab(catId);
+    setTimeout(() => {
+      const el = document.getElementById('menu-content');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
+  const goToPrev = () => {
+    const activeIdx = menuData.findIndex((cat) => cat.id === activeTab);
+    const prevIdx = (activeIdx - 1 + menuData.length) % menuData.length;
+    handleTabClick(menuData[prevIdx].id);
+  };
+
+  const goToNext = () => {
+    const activeIdx = menuData.findIndex((cat) => cat.id === activeTab);
+    const nextIdx = (activeIdx + 1) % menuData.length;
+    handleTabClick(menuData[nextIdx].id);
+  };
+
+  // Detect if menu-content is visible to show/hide side arrows
+  useEffect(() => {
+    const handleScroll = () => {
+      const el = document.getElementById('menu-content');
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        // Show arrows when the menu content block is visible in the viewport
+        const inViewport = rect.top < window.innerHeight && rect.bottom > 0;
+        setShowArrows(inViewport);
+      }
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Keyboard navigation listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isSearchFocused) return;
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+        return;
+      }
+
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        goToPrev();
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        goToNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab, isSearchFocused]);
+
   const clearSearch = () => setSearchQuery('');
 
   return (
@@ -142,6 +192,8 @@ export default function MenuTabs() {
               placeholder="Buscar un plato o ingrediente..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
               className="w-full pl-10 pr-10 py-3 bg-cream-dark border border-earth/10 focus:border-terra/40 focus:outline-none text-earth font-sans text-sm rounded-md placeholder-earth-light/50 transition-all duration-300 shadow-sm"
             />
             {searchQuery && (
@@ -348,6 +400,39 @@ export default function MenuTabs() {
           </p>
         </div>
         
+        {/* Floating Side Arrows */}
+        <AnimatePresence>
+          {showArrows && !searchQuery && (
+            <>
+              {/* Left Arrow Button */}
+              <motion.button
+                initial={{ opacity: 0, x: -15 }}
+                animate={{ opacity: 0.8, x: 0 }}
+                whileHover={{ opacity: 1, scale: 1.1, backgroundColor: "var(--color-terra)", color: "var(--color-cream)" }}
+                exit={{ opacity: 0, x: -15 }}
+                onClick={goToPrev}
+                className="fixed left-1.5 md:left-6 top-1/2 -translate-y-1/2 z-40 bg-cream/90 backdrop-blur-sm border border-earth/15 text-earth p-2.5 md:p-3.5 rounded-full shadow-lg transition-all duration-300 select-none cursor-pointer"
+                aria-label="Categoría anterior"
+              >
+                <ChevronLeft size={20} />
+              </motion.button>
+
+              {/* Right Arrow Button */}
+              <motion.button
+                initial={{ opacity: 0, x: 15 }}
+                animate={{ opacity: 0.8, x: 0 }}
+                whileHover={{ opacity: 1, scale: 1.1, backgroundColor: "var(--color-terra)", color: "var(--color-cream)" }}
+                exit={{ opacity: 0, x: 15 }}
+                onClick={goToNext}
+                className="fixed right-1.5 md:right-6 top-1/2 -translate-y-1/2 z-40 bg-cream/90 backdrop-blur-sm border border-earth/15 text-earth p-2.5 md:p-3.5 rounded-full shadow-lg transition-all duration-300 select-none cursor-pointer"
+                aria-label="Siguiente categoría"
+              >
+                <ChevronRight size={20} />
+              </motion.button>
+            </>
+          )}
+        </AnimatePresence>
+
       </div>
     </section>
   );
