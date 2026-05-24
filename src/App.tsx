@@ -159,7 +159,7 @@ const History = () => (
               "Donde lo simpático conoce lo exquisito."
             </p>
             <p className="text-cream/70 leading-relaxed text-base md:text-lg mb-10 max-w-xl">
-              En <strong className="text-cream">Entre Mar y Tierra</strong> aprovechamos los frutos del mar, del huerto y la parrilla para crear un amplio menú lleno de delicias para todo gusto. Los invitamos a probar nuestra experiencia y buen trato, aquí lo memorable viene como garantía.
+              En <strong className="text-cream">Entre Mar y Tierra</strong> aprovechamos los frutos del mar, del huerto y la parrilla para crear un amplio menú lleno de delicias para todos los gustos. Los invitamos a probar nuestra experiencia y buen trato, aquí lo memorable viene como garantía.
             </p>
             <div className="flex gap-12">
               <div>
