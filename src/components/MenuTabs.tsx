@@ -206,13 +206,20 @@ export default function MenuTabs() {
                 transition={{ duration: 0.3 }}
                 className="space-y-12 md:space-y-16"
               >
+                <div>
+                  {/* Main Category Header */}
+                  <h3 className="text-3xl md:text-4xl font-serif font-black text-earth border-b border-earth/10 pb-4 mb-4">
+                    {currentCategory.name}
+                  </h3>
+                </div>
+
                 {currentCategory.sections.map((section, secIdx) => (
                   <div key={secIdx}>
-                    {/* Section Header */}
+                    {/* Section Header (Sub-sección) */}
                     {section.name && (
-                      <h3 className="text-2xl md:text-3xl font-serif font-black text-earth-mid mb-8 border-b border-earth/5 pb-2">
+                      <h4 className="text-xl md:text-2xl font-serif font-bold text-earth-mid mb-8 border-b border-earth/5 pb-2">
                         {section.name}
-                      </h3>
+                      </h4>
                     )}
 
                     {/* Section Items Grid */}
