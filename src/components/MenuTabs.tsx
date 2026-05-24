@@ -295,7 +295,7 @@ export default function MenuTabs() {
                     key={`${activeTab}-underline`}
                     initial={{ width: 0 }}
                     animate={{ width: "100%" }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+                    transition={{ duration: 0.5, ease: [0.1, 0.9, 0.2, 1], delay: 0.05 }}
                     className="absolute bottom-0 left-0 h-[3px] bg-terra"
                   />
                 </div>
