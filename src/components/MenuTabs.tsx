@@ -33,6 +33,46 @@ const categoryIcons: Record<string, React.ReactNode> = {
   rocas: <Wine size={16} />
 };
 
+// Define 4 thematic groups for organizing the tabs
+const thematicGroups = [
+  {
+    name: "Para Empezar",
+    categoryIds: ["aperitivos", "sours", "cervezas", "entradas-mar", "entradas-tierra"]
+  },
+  {
+    name: "Platos de Fondo",
+    categoryIds: [
+      "fondos-mar-frios",
+      "fondos-mar-calientes",
+      "pescados-plancha",
+      "pescados-fritos",
+      "caldos-chupes",
+      "platos-caza",
+      "carnes-parrilla",
+      "carnes-olla",
+      "platos-tradicionales",
+      "cazuelas-caldos"
+    ]
+  },
+  {
+    name: "Acompañamientos",
+    categoryIds: ["guarniciones", "salsas-salteados", "ensaladas"]
+  },
+  {
+    name: "Para Cerrar",
+    categoryIds: [
+      "postres",
+      "bebidas-calientes",
+      "tragos-preparados",
+      "cocteles-tragos",
+      "rocas",
+      "bebestibles-otros",
+      "ninos",
+      "compartir"
+    ]
+  }
+];
+
 export default function MenuTabs() {
   const [activeTab, setActiveTab] = useState<string>(menuData[0].id);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -106,32 +146,46 @@ export default function MenuTabs() {
           </div>
         </div>
 
-        {/* Tab Navigation (Wrapped into pills/chips so they are all visible) */}
+        {/* Thematic Columns Tab Navigation */}
         {!searchQuery && (
-          <div className="mb-12">
-            <div className="flex flex-wrap gap-2 justify-start md:justify-center">
-              {menuData.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveTab(cat.id)}
-                  className={`relative flex items-center gap-1.5 px-4 py-2 font-sans font-bold text-xs tracking-wide uppercase transition-colors duration-300 rounded-full ${
-                    activeTab === cat.id
-                      ? 'text-cream z-10'
-                      : 'text-earth bg-earth/5 hover:bg-earth/10 hover:text-earth-mid'
-                  }`}
-                >
-                  {categoryIcons[cat.id]}
-                  {cat.name}
-                  {activeTab === cat.id && (
-                    <motion.div
-                      layoutId="activeTabIndicator"
-                      className="absolute inset-0 bg-terra rounded-full -z-10"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
+          <div className="mb-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {thematicGroups.map((group) => (
+              <div 
+                key={group.name} 
+                className="flex flex-col bg-cream-dark/40 p-4 rounded-xl border border-earth/5 shadow-sm"
+              >
+                <h3 className="font-serif font-black text-earth text-sm border-b border-earth/10 pb-2 mb-3 tracking-wider uppercase">
+                  {group.name}
+                </h3>
+                <div className="flex flex-col gap-1">
+                  {group.categoryIds.map((catId) => {
+                    const cat = menuData.find((c) => c.id === catId);
+                    if (!cat) return null;
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => setActiveTab(cat.id)}
+                        className={`relative flex items-center gap-2 px-3 py-2 font-sans font-bold text-xs text-left tracking-wide uppercase transition-colors duration-300 rounded-lg select-none ${
+                          activeTab === cat.id
+                            ? 'text-cream z-10 font-black'
+                            : 'text-earth hover:bg-earth/5 hover:text-earth-mid'
+                        }`}
+                      >
+                        {categoryIcons[cat.id]}
+                        <span className="truncate">{cat.name}</span>
+                        {activeTab === cat.id && (
+                          <motion.div
+                            layoutId="activeTabIndicator"
+                            className="absolute inset-0 bg-terra rounded-lg -z-10"
+                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
