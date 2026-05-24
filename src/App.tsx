@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { MapPin, Phone, Clock, Anchor, Mountain, Menu as MenuIcon, X } from 'lucide-react';
+import { MapPin, Phone, Clock, Menu as MenuIcon, X } from 'lucide-react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import Gallery from './components/Gallery';
+import MenuTabs from './components/MenuTabs';
 
 const InstagramIcon = ({ size = 20 }: { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -145,69 +146,7 @@ const Hero = () => (
   </section>
 );
 
-const MenuSection = () => {
-  const categories = [
-    {
-      title: "Desde el Mar",
-      icon: <Anchor className="text-sage" size={22} />,
-      items: [
-        { name: "Chupe de Locos", desc: "Suave crema con locos picados y queso gratinado.", price: "$14.500" },
-        { name: "Congrio a la Valdiviana", desc: "El clásico caldo con huevo escalfado y papas rústicas.", price: "$12.900" },
-        { name: "Caldillo de Pailas", desc: "Surtido de mariscos frescos de la costa valdiviana.", price: "$11.200" }
-      ]
-    },
-    {
-      title: "De la Tierra",
-      icon: <Mountain className="text-terra" size={22} />,
-      items: [
-        { name: "Costillar de Cerdo al Horno", desc: "Adobado en ají color y servido con puré picante.", price: "$13.800" },
-        { name: "Plateada en su Jugo", desc: "Cocción lenta de 8 horas con guarnición de charquicán.", price: "$12.500" },
-        { name: "Pastel de Choclo", desc: "En paila de greda con pino de carne y pollo.", price: "$10.900" }
-      ]
-    }
-  ];
 
-  return (
-    <section id="menu" className="py-20 md:py-28 bg-cream">
-      <div className="max-w-6xl mx-auto px-6">
-        <ScrollReveal>
-          <div className="mb-16">
-            <h2 className="text-4xl md:text-5xl font-serif font-black text-earth leading-tight">Nuestra Carta</h2>
-            <p className="mt-3 text-earth-light font-sans text-base">Sabores caseros preparados con ingredientes de productores locales.</p>
-          </div>
-        </ScrollReveal>
-
-        <div className="space-y-20 md:space-y-28">
-          {categories.map((cat, idx) => (
-            <ScrollReveal key={idx} delay={idx * 0.1}>
-              <div>
-                <div className="flex items-center gap-3 mb-10">
-                  {cat.icon}
-                  <h3 className="text-3xl md:text-4xl font-serif font-bold text-earth">{cat.title}</h3>
-                </div>
-                <div className="space-y-0">
-                  {cat.items.map((item, i) => (
-                    <div key={i} className={`flex justify-between items-start py-6 ${i < cat.items.length - 1 ? 'border-b border-earth/10' : ''}`}>
-                      <div className="pr-4">
-                        <h4 className="font-sans font-bold text-earth text-lg">{item.name}</h4>
-                        <p className="text-earth-light/70 text-sm mt-1 max-w-md">{item.desc}</p>
-                      </div>
-                      <span className="font-serif font-bold text-terra text-lg whitespace-nowrap">{item.price}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
-
-        <ScrollReveal delay={0.3}>
-          <p className="mt-16 text-center italic text-earth-light/60 font-serif text-sm">Menú sujeto a disponibilidad de temporada.</p>
-        </ScrollReveal>
-      </div>
-    </section>
-  );
-};
 
 const History = () => (
   <section id="historia" className="py-20 md:py-28 bg-earth text-cream overflow-hidden">
@@ -318,7 +257,7 @@ function App() {
       <Navbar />
       <Hero />
       <Gallery />
-      <MenuSection />
+      <MenuTabs />
       <History />
       <Footer />
     </div>
