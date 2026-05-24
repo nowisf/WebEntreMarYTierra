@@ -77,6 +77,16 @@ export default function MenuTabs() {
   const [activeTab, setActiveTab] = useState<string>(menuData[0].id);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  const handleTabClick = (catId: string) => {
+    setActiveTab(catId);
+    setTimeout(() => {
+      const el = document.getElementById('menu-content');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
   // Global search filtering
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -164,7 +174,7 @@ export default function MenuTabs() {
                     return (
                       <button
                         key={cat.id}
-                        onClick={() => setActiveTab(cat.id)}
+                        onClick={() => handleTabClick(cat.id)}
                         className={`relative flex items-center gap-2 px-3 py-2 font-sans font-bold text-xs text-left tracking-wide uppercase transition-colors duration-300 rounded-lg select-none ${
                           activeTab === cat.id
                             ? 'text-cream z-10 font-black'
@@ -190,7 +200,7 @@ export default function MenuTabs() {
         )}
 
         {/* Menu Content Area */}
-        <div className="min-h-[400px]">
+        <div id="menu-content" className="min-h-[400px] scroll-mt-28">
           <AnimatePresence mode="wait">
             {searchQuery ? (
               // Search Results View
