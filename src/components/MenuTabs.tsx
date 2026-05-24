@@ -3,20 +3,33 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, ChefHat, Flame } from 'lucide-react';
 import { menuData, MenuCategory, MenuItem } from '../data/menuData';
 
-// Map 13 categories to beautiful icons
+// Map 26 categories to beautiful icons
 const categoryIcons: Record<string, React.ReactNode> = {
   aperitivos: <Wine size={16} />,
+  "bebestibles-otros": <Wine size={16} />,
   sours: <Wine size={16} />,
   cervezas: <Wine size={16} />,
   "entradas-mar": <Fish size={16} />,
   "entradas-tierra": <Sparkles size={16} />,
-  "fondos-mar": <Fish size={16} />,
-  "fondos-tierra": <Beef size={16} />,
-  tradicionales: <Utensils size={16} />,
+  "fondos-mar-frios": <Fish size={16} />,
+  "fondos-mar-calientes": <Fish size={16} />,
+  "pescados-plancha": <Fish size={16} />,
+  "pescados-fritos": <Fish size={16} />,
+  "caldos-chupes": <Fish size={16} />,
+  "platos-caza": <Beef size={16} />,
+  "carnes-parrilla": <Beef size={16} />,
+  "carnes-olla": <Beef size={16} />,
+  "platos-tradicionales": <Utensils size={16} />,
+  "cazuelas-caldos": <Utensils size={16} />,
+  ninos: <Utensils size={16} />,
+  compartir: <Utensils size={16} />,
   guarniciones: <ChefHat size={16} />,
   "salsas-salteados": <Flame size={16} />,
+  ensaladas: <Flame size={16} />,
   postres: <Coffee size={16} />,
-  tragos: <Wine size={16} />,
+  "bebidas-calientes": <Coffee size={16} />,
+  "tragos-preparados": <Wine size={16} />,
+  "cocteles-tragos": <Wine size={16} />,
   rocas: <Wine size={16} />
 };
 
