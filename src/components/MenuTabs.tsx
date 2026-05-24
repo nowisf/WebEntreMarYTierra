@@ -250,7 +250,7 @@ export default function MenuTabs() {
         {/* Footer Disclaimer */}
         <div className="mt-16 pt-8 border-t border-earth/10 text-center">
           <p className="italic text-earth-light/60 font-serif text-sm">
-            Nuestros mariscos provienen de la pesca sustentable de la costa valdiviana. Menú sujeto a cambios de temporada.
+            Menú sujeto a cambios de temporada.
           </p>
         </div>
         
