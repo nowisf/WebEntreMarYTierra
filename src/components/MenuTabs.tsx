@@ -1,49 +1,28 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, ChefHat, Flame } from 'lucide-react';
 import { menuData, MenuCategory, MenuItem } from '../data/menuData';
 
 // Map 13 categories to beautiful icons
 const categoryIcons: Record<string, React.ReactNode> = {
-  aperitivos: <Wine size={18} />,
-  sours: <Wine size={18} />,
-  cervezas: <Wine size={18} />,
-  "entradas-mar": <Fish size={18} />,
-  "entradas-tierra": <Sparkles size={18} />,
-  "fondos-mar": <Fish size={18} />,
-  "fondos-tierra": <Beef size={18} />,
-  tradicionales: <Utensils size={18} />,
-  guarniciones: <ChefHat size={18} />,
-  "salsas-salteados": <Flame size={18} />,
-  postres: <Coffee size={18} />,
-  tragos: <Wine size={18} />,
-  rocas: <Wine size={18} />
+  aperitivos: <Wine size={16} />,
+  sours: <Wine size={16} />,
+  cervezas: <Wine size={16} />,
+  "entradas-mar": <Fish size={16} />,
+  "entradas-tierra": <Sparkles size={16} />,
+  "fondos-mar": <Fish size={16} />,
+  "fondos-tierra": <Beef size={16} />,
+  tradicionales: <Utensils size={16} />,
+  guarniciones: <ChefHat size={16} />,
+  "salsas-salteados": <Flame size={16} />,
+  postres: <Coffee size={16} />,
+  tragos: <Wine size={16} />,
+  rocas: <Wine size={16} />
 };
 
 export default function MenuTabs() {
   const [activeTab, setActiveTab] = useState<string>(menuData[0].id);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const tabsContainerRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll active tab into view in the horizontal bar on mobile
-  useEffect(() => {
-    const activeBtn = tabRefs.current[activeTab];
-    const container = tabsContainerRef.current;
-    if (activeBtn && container) {
-      const containerScrollLeft = container.scrollLeft;
-      const containerWidth = container.clientWidth;
-      const btnLeft = activeBtn.offsetLeft;
-      const btnWidth = activeBtn.clientWidth;
-
-      if (btnLeft < containerScrollLeft || (btnLeft + btnWidth) > (containerScrollLeft + containerWidth)) {
-        container.scrollTo({
-          left: btnLeft - containerWidth / 2 + btnWidth / 2,
-          behavior: 'smooth'
-        });
-      }
-    }
-  }, [activeTab]);
 
   // Global search filtering
   const searchResults = useMemo(() => {
@@ -114,21 +93,18 @@ export default function MenuTabs() {
           </div>
         </div>
 
-        {/* Tab Navigation (only visible when not searching) */}
+        {/* Tab Navigation (Wrapped into pills/chips so they are all visible) */}
         {!searchQuery && (
-          <div className="relative border-b border-earth/10 mb-12">
-            <div
-              ref={tabsContainerRef}
-              className="flex gap-2 overflow-x-auto no-scrollbar pb-3 scrollbar-thin scrollbar-thumb-earth/10 scrollbar-track-transparent"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
+          <div className="mb-12">
+            <div className="flex flex-wrap gap-2 justify-start md:justify-center">
               {menuData.map((cat) => (
                 <button
                   key={cat.id}
-                  ref={(el) => { tabRefs.current[cat.id] = el; }}
                   onClick={() => setActiveTab(cat.id)}
-                  className={`relative flex items-center gap-2 px-5 py-3.5 font-sans font-bold text-sm tracking-wide uppercase whitespace-nowrap transition-colors duration-300 rounded-t-lg ${
-                    activeTab === cat.id ? 'text-terra' : 'text-earth-light hover:text-earth'
+                  className={`relative flex items-center gap-1.5 px-4 py-2 font-sans font-bold text-xs tracking-wide uppercase transition-colors duration-300 rounded-full ${
+                    activeTab === cat.id
+                      ? 'text-cream z-10'
+                      : 'text-earth bg-earth/5 hover:bg-earth/10 hover:text-earth-mid'
                   }`}
                 >
                   {categoryIcons[cat.id]}
@@ -136,8 +112,8 @@ export default function MenuTabs() {
                   {activeTab === cat.id && (
                     <motion.div
                       layoutId="activeTabIndicator"
-                      className="absolute bottom-[-3px] left-0 right-0 h-[3px] bg-terra rounded-full"
-                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                      className="absolute inset-0 bg-terra rounded-full -z-10"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
                 </button>
