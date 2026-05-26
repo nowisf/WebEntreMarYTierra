@@ -52,6 +52,26 @@ export default function MenuTabs() {
     return () => observer.disconnect();
   }, [searchQuery]);
 
+  // Scroll active sidebar item into view inside the sticky container
+  useEffect(() => {
+    const activeEl = document.getElementById(`sidebar-btn-${activeTab}`);
+    const container = document.getElementById('sidebar-container');
+    if (activeEl && container) {
+      const containerHeight = container.clientHeight;
+      const elOffset = activeEl.offsetTop;
+      const elHeight = activeEl.clientHeight;
+      const currentScroll = container.scrollTop;
+
+      // Scroll only if the active element is outside the visible viewport of the sidebar
+      if (elOffset < currentScroll || (elOffset + elHeight) > (currentScroll + containerHeight)) {
+        container.scrollTo({
+          top: elOffset - (containerHeight / 2) + (elHeight / 2),
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [activeTab]);
+
   // Global search filtering
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -208,11 +228,12 @@ export default function MenuTabs() {
               <div className="flex flex-col lg:flex-row gap-12 items-start">
                 
                 {/* Left Column: Sticky Sidebar Categories (Desktop only) */}
-                <aside className="hidden lg:block w-1/4 sticky top-28 self-start max-h-[calc(100vh-140px)] overflow-y-auto pr-4 scrollbar-none">
+                <aside id="sidebar-container" className="hidden lg:block w-1/4 sticky top-28 self-start max-h-[calc(100vh-140px)] overflow-y-auto pr-4 scrollbar-none relative">
                   <div className="flex flex-col gap-1.5 py-2">
                     {menuData.map((cat) => (
                       <button
                         key={cat.id}
+                        id={`sidebar-btn-${cat.id}`}
                         onClick={() => handleTabClick(cat.id)}
                         className={`relative flex items-center gap-3 px-4 py-3 font-sans font-bold text-xs text-left tracking-wider uppercase transition-all duration-300 rounded-xl cursor-pointer select-none ${
                           activeTab === cat.id
