@@ -1,83 +1,47 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, ChefHat, Flame, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, ChefHat, Flame, ChevronLeft, ChevronRight, Beer, GlassWater, Cake } from 'lucide-react';
 import { menuData, MenuCategory, MenuItem } from '../data/menuData';
 
-// Map 26 categories to beautiful icons
+// Map 13 categories to beautiful icons
 const categoryIcons: Record<string, React.ReactNode> = {
-  aperitivos: <Wine size={16} />,
-  "bebestibles-otros": <Wine size={16} />,
-  sours: <Wine size={16} />,
-  cervezas: <Wine size={16} />,
-  "entradas-mar": <Fish size={16} />,
-  "entradas-tierra": <Sparkles size={16} />,
-  "fondos-mar-frios": <Fish size={16} />,
-  "fondos-mar-calientes": <Fish size={16} />,
-  "pescados-plancha": <Fish size={16} />,
-  "pescados-fritos": <Fish size={16} />,
-  "caldos-chupes": <Fish size={16} />,
-  "platos-caza": <Beef size={16} />,
-  "carnes-parrilla": <Beef size={16} />,
-  "carnes-olla": <Beef size={16} />,
-  "platos-tradicionales": <Utensils size={16} />,
-  "cazuelas-caldos": <Utensils size={16} />,
-  ninos: <Utensils size={16} />,
-  compartir: <Utensils size={16} />,
-  guarniciones: <ChefHat size={16} />,
-  "salsas-salteados": <Flame size={16} />,
-  ensaladas: <Flame size={16} />,
-  postres: <Coffee size={16} />,
-  "bebidas-calientes": <Coffee size={16} />,
-  "tragos-preparados": <Wine size={16} />,
-  "cocteles-tragos": <Wine size={16} />,
-  rocas: <Wine size={16} />
+  "aperitivos-de-la-casa": <Wine size={18} />,
+  "formato-sour": <GlassWater size={18} />,
+  cervezas: <Beer size={18} />,
+  "entradas-de-mar": <Fish size={18} />,
+  "entradas-de-tierra": <Sparkles size={18} />,
+  "platos-de-fondo-mar": <Fish size={18} />,
+  "platos-de-fondo-tierra": <Beef size={18} />,
+  "platos-tradicionales": <Utensils size={18} />,
+  "guarnicion-del-plato": <ChefHat size={18} />,
+  "salsas-y-salteados": <Flame size={18} />,
+  postres: <Cake size={18} />,
+  tragos: <Wine size={18} />,
+  "formato-a-las-rocas": <GlassWater size={18} />
 };
-
-// Define 4 thematic groups for organizing the tabs
-const thematicGroups = [
-  {
-    name: "Para Empezar",
-    categoryIds: ["aperitivos", "sours", "cervezas", "entradas-mar", "entradas-tierra"]
-  },
-  {
-    name: "Platos de Fondo",
-    categoryIds: [
-      "fondos-mar-frios",
-      "fondos-mar-calientes",
-      "pescados-plancha",
-      "pescados-fritos",
-      "caldos-chupes",
-      "platos-caza",
-      "carnes-parrilla",
-      "carnes-olla",
-      "platos-tradicionales",
-      "cazuelas-caldos"
-    ]
-  },
-  {
-    name: "Acompañamientos",
-    categoryIds: ["guarniciones", "salsas-salteados", "ensaladas"]
-  },
-  {
-    name: "Para Cerrar",
-    categoryIds: [
-      "postres",
-      "bebidas-calientes",
-      "tragos-preparados",
-      "cocteles-tragos",
-      "rocas",
-      "bebestibles-otros",
-      "ninos",
-      "compartir"
-    ]
-  }
-];
 
 export default function MenuTabs() {
   const [activeTab, setActiveTab] = useState<string>(menuData[0].id);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
   const [showArrows, setShowArrows] = useState<boolean>(false);
+
+  // Scroll active tab into view in the horizontal tabs bar
+  useEffect(() => {
+    const activeEl = document.getElementById(`tab-btn-${activeTab}`);
+    const container = document.getElementById('tabs-container');
+    if (activeEl && container) {
+      const containerWidth = container.clientWidth;
+      const elOffset = activeEl.offsetLeft;
+      const elWidth = activeEl.clientWidth;
+      
+      // Center the active tab in the container
+      container.scrollTo({
+        left: elOffset - (containerWidth / 2) + (elWidth / 2),
+        behavior: 'smooth'
+      });
+    }
+  }, [activeTab]);
 
   // Global search filtering
   const searchResults = useMemo(() => {
@@ -208,46 +172,42 @@ export default function MenuTabs() {
           </div>
         </div>
 
-        {/* Thematic Columns Tab Navigation */}
+        {/* Horizontal Scrollable Tabs */}
         {!searchQuery && (
-          <div className="mb-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {thematicGroups.map((group) => (
-              <div 
-                key={group.name} 
-                className="flex flex-col bg-cream-dark/40 p-4 rounded-xl border border-earth/5 shadow-sm"
-              >
-                <h3 className="font-serif font-black text-earth text-sm border-b border-earth/10 pb-2 mb-3 tracking-wider uppercase">
-                  {group.name}
-                </h3>
-                <div className="flex flex-col gap-1">
-                  {group.categoryIds.map((catId) => {
-                    const cat = menuData.find((c) => c.id === catId);
-                    if (!cat) return null;
-                    return (
-                      <button
-                        key={cat.id}
-                        onClick={() => handleTabClick(cat.id)}
-                        className={`relative flex items-center gap-2 px-3 py-2 font-sans font-bold text-xs text-left tracking-wide uppercase transition-colors duration-300 rounded-lg select-none ${
-                          activeTab === cat.id
-                            ? 'text-cream z-10 font-black'
-                            : 'text-earth hover:bg-earth/5 hover:text-earth-mid'
-                        }`}
-                      >
-                        {categoryIcons[cat.id]}
-                        <span className="truncate">{cat.name}</span>
-                        {activeTab === cat.id && (
-                          <motion.div
-                            layoutId="activeTabIndicator"
-                            className="absolute inset-0 bg-terra rounded-lg -z-10"
-                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+          <div className="relative mb-12">
+            {/* Scrollable Container */}
+            <div 
+              id="tabs-container"
+              className="flex gap-2.5 overflow-x-auto pb-4 scrollbar-none scroll-smooth -mx-6 px-6 md:mx-0 md:px-0 snap-x snap-mandatory"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {menuData.map((cat) => (
+                <button
+                  key={cat.id}
+                  id={`tab-btn-${cat.id}`}
+                  onClick={() => handleTabClick(cat.id)}
+                  className={`relative flex items-center gap-2.5 px-5 py-3 font-sans font-bold text-xs tracking-wider uppercase transition-all duration-300 rounded-full select-none snap-start shrink-0 whitespace-nowrap border cursor-pointer ${
+                    activeTab === cat.id
+                      ? 'text-cream border-terra z-10 font-black'
+                      : 'text-earth bg-cream-dark/30 hover:bg-cream-dark/80 border-earth/10'
+                  }`}
+                >
+                  {categoryIcons[cat.id]}
+                  <span>{cat.name}</span>
+                  {activeTab === cat.id && (
+                    <motion.div
+                      layoutId="activeTabIndicator"
+                      className="absolute inset-0 bg-terra rounded-full -z-10"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+            
+            {/* Soft fade gradients on edges for visual hint that it scrolls */}
+            <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-cream to-transparent pointer-events-none md:hidden" />
+            <div className="absolute left-0 top-0 bottom-4 w-12 bg-gradient-to-r from-cream to-transparent pointer-events-none md:hidden" />
           </div>
         )}
 

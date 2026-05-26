@@ -17,8 +17,8 @@ export interface MenuCategory {
 
 export const menuData: MenuCategory[] = [
   {
-    id: "aperitivos",
-    name: "Aperitivos",
+    id: "aperitivos-de-la-casa",
+    name: "Aperitivos de la Casa",
     sections: [
       {
         items: [
@@ -32,14 +32,9 @@ export const menuData: MenuCategory[] = [
           { name: "Cleary (Jarra)", price: "$8.900" },
           { name: "Pichunchos", price: "$5.500" }
         ]
-      }
-    ]
-  },
-  {
-    id: "bebestibles-otros",
-    name: "Otros Bebestibles",
-    sections: [
+      },
       {
+        name: "Otros Bebestibles",
         items: [
           { name: "Bebidas", price: "$3.500" },
           { name: "Jugos Naturales", price: "$3.500" },
@@ -51,7 +46,7 @@ export const menuData: MenuCategory[] = [
     ]
   },
   {
-    id: "sours",
+    id: "formato-sour",
     name: "Formato Sour",
     sections: [
       {
@@ -91,7 +86,7 @@ export const menuData: MenuCategory[] = [
     ]
   },
   {
-    id: "entradas-mar",
+    id: "entradas-de-mar",
     name: "Entradas de Mar",
     sections: [
       {
@@ -125,7 +120,7 @@ export const menuData: MenuCategory[] = [
     ]
   },
   {
-    id: "entradas-tierra",
+    id: "entradas-de-tierra",
     name: "Entradas de Tierra",
     sections: [
       {
@@ -145,23 +140,19 @@ export const menuData: MenuCategory[] = [
     ]
   },
   {
-    id: "fondos-mar-frios",
-    name: "Platos Fríos (Mar)",
+    id: "platos-de-fondo-mar",
+    name: "Platos de Fondo \"Mar\"",
     sections: [
       {
+        name: "Platos Fríos",
         items: [
           { name: "Primavera de Mariscos (Cocidos)", price: "$25.500" },
           { name: "Mariscal Frío", price: "$17.000" },
           { name: "Pinzas de Jaibas en Salsa Verde", price: "$16.800" }
         ]
-      }
-    ]
-  },
-  {
-    id: "fondos-mar-calientes",
-    name: "Platos Calientes (Mar)",
-    sections: [
+      },
       {
+        name: "Platos Calientes",
         items: [
           { name: "Embrujo Mar y Tierra", price: "$23.500" },
           { name: "Pulpo a la Parrilla con Papas Doradas", price: "$18.500" },
@@ -170,14 +161,9 @@ export const menuData: MenuCategory[] = [
           { name: "Paila Marina", price: "$14.500" },
           { name: "Trilogía de Camarones", price: "$22.500" }
         ]
-      }
-    ]
-  },
-  {
-    id: "pescados-plancha",
-    name: "Pescados a la Plancha",
-    sections: [
+      },
       {
+        name: "Pescados a la Plancha",
         items: [
           { name: "Salmón Papellón a la Parrilla", price: "$19.500", desc: "Con tomate y queso." },
           { name: "Lenguado a la Plancha", price: "$19.500" },
@@ -190,28 +176,18 @@ export const menuData: MenuCategory[] = [
           { name: "Merluza", price: "$15.000" },
           { name: "Trucha (o a la parrilla)", price: "$15.000" }
         ]
-      }
-    ]
-  },
-  {
-    id: "pescados-fritos",
-    name: "Pescados Fritos",
-    sections: [
+      },
       {
+        name: "Pescados Fritos",
         items: [
           { name: "Congrio Frito", price: "$16.500" },
           { name: "Corvina Frita", price: "$16.500" },
           { name: "Reineta Frita", price: "$15.000" },
           { name: "Merluza Frita", price: "$16.000" }
         ]
-      }
-    ]
-  },
-  {
-    id: "caldos-chupes",
-    name: "Caldos y Chupes",
-    sections: [
+      },
       {
+        name: "Caldos y Chupes",
         items: [
           { name: "Caldillo de Congrio", price: "$16.500" },
           { name: "Caldillo de Congrio Nerudiano (camarones)", price: "$18.500" },
@@ -219,31 +195,26 @@ export const menuData: MenuCategory[] = [
           { name: "Chupe de Jaiba con Camarones", price: "$18.000" },
           { name: "Chupe de Centolla", price: "$18.900" },
           { name: "Chupe de Locos", price: "$18.900" },
-          { name: "Chupe de Guatitas", price: "$10.500" },
           { name: "Chupe de Cochayuyo", price: "$10.500" }
         ]
       }
     ]
   },
   {
-    id: "platos-caza",
-    name: "Platos de Caza",
+    id: "platos-de-fondo-tierra",
+    name: "Platos de Fondo \"Tierra\"",
     sections: [
       {
+        name: "Platos de Caza",
         items: [
           { name: "Codornices (2 unidades)", price: "$18.900" },
           { name: "Liebre o Conejo (porción)", price: "$18.900" },
           { name: "Jabalí", price: "$22.900" },
           { name: "Pato (al coñac o a la naranja)", price: "$23.500" }
         ]
-      }
-    ]
-  },
-  {
-    id: "carnes-parrilla",
-    name: "Carnes a la Parrilla / Plancha",
-    sections: [
+      },
       {
+        name: "Carnes a la Parrilla / Plancha",
         items: [
           { name: "Bife Chorizo", price: "$25.500" },
           { name: "Entrecot", price: "$21.500" },
@@ -257,32 +228,23 @@ export const menuData: MenuCategory[] = [
           { name: "Pollo a la Parrilla / Plancha", price: "$12.500" },
           { name: "Matahambre (Malaya)", price: "$15.800" }
         ]
-      }
-    ]
-  },
-  {
-    id: "carnes-olla",
-    name: "Carnes a la Olla / Horno",
-    sections: [
+      },
       {
+        name: "Carnes a la Olla / Horno",
         items: [
           { name: "Plateada", price: "$16.000" },
           { name: "Asado de Estomaguillo", price: "$18.900" },
           { name: "Carne Mechada", price: "$15.500" }
         ]
-      }
-    ]
-  },
-  {
-    id: "platos-tradicionales",
-    name: "Platos Tradicionales",
-    sections: [
+      },
       {
+        name: "Platos Tradicionales",
         items: [
           { name: "Crudo de la Casa", price: "$12.500" },
           { name: "Pernil de Cerdo al Horno (papas cocidas y pebre)", price: "$16.500" },
           { name: "Lengua de Vacuno (con salsa de champiñones o salsa verde)", price: "$15.500" },
           { name: "Guatitas a la Chilena o a la Primavera", price: "$12.500" },
+          { name: "Chupe de Guatitas", price: "$10.500" },
           { name: "Pastel de Choclo Pequeño", price: "$5.000" },
           { name: "Pastel de Choclo", price: "$12.500" },
           { name: "Chancho Borracho", price: "$15.000" },
@@ -293,10 +255,11 @@ export const menuData: MenuCategory[] = [
     ]
   },
   {
-    id: "cazuelas-caldos",
-    name: "Cazuelas, Caldos y Ajiacos",
+    id: "platos-tradicionales",
+    name: "Platos Tradicionales",
     sections: [
       {
+        name: "Cazuelas, Caldos y Ajiacos",
         items: [
           { name: "Ajiaco con Sopaipillas", price: "$13.000" },
           { name: "Valdiviano con Sopaipillas", price: "$15.800" },
@@ -304,27 +267,17 @@ export const menuData: MenuCategory[] = [
           { name: "Cazuela de Ave", price: "$8.000" },
           { name: "Cazuela de Cordero", price: "$9.000" }
         ]
-      }
-    ]
-  },
-  {
-    id: "ninos",
-    name: "Platos de Niños",
-    sections: [
+      },
       {
+        name: "Platos de Niños",
         items: [
           { name: "Bistec a la Plancha con Arroz / Puré", price: "$12.800" },
           { name: "Salchipapas (Formato Pulpito)", price: "$8.000" },
           { name: "Nugget con Papas Fritas (4 unidades)", price: "$10.000" }
         ]
-      }
-    ]
-  },
-  {
-    id: "compartir",
-    name: "Para Compartir",
-    sections: [
+      },
       {
+        name: "Para Compartir",
         items: [
           { name: "Brasero Entre Mar y Tierra", price: "$61.000", desc: "Carnes con porciones de pescados y mariscos salteados." },
           { name: "Brasero para 2 Personas", price: "$49.000", desc: "Vacuno, pollo, cerdo, chunchules, interiores, ensalada y sopaipillas." },
@@ -336,7 +289,7 @@ export const menuData: MenuCategory[] = [
     ]
   },
   {
-    id: "guarniciones",
+    id: "guarnicion-del-plato",
     name: "Guarnición del Plato",
     sections: [
       {
@@ -364,7 +317,7 @@ export const menuData: MenuCategory[] = [
     ]
   },
   {
-    id: "salsas-salteados",
+    id: "salsas-y-salteados",
     name: "Salsas y Salteados",
     sections: [
       {
@@ -384,14 +337,9 @@ export const menuData: MenuCategory[] = [
           { name: "A la Mantequilla Rubia o Negra", price: "$2.000" },
           { name: "A la Mantequilla con Alcaparras y Camarones", price: "$5.500" }
         ]
-      }
-    ]
-  },
-  {
-    id: "ensaladas",
-    name: "Ensaladas",
-    sections: [
+      },
       {
+        name: "Ensaladas",
         items: [
           { name: "Surtida", price: "$4.200" },
           { name: "Mar y Tierra", price: "$8.900", desc: "Lechuga, tomate, palmitos, camarones, ostiones, aceitunas." },
@@ -430,14 +378,9 @@ export const menuData: MenuCategory[] = [
           { name: "Tiramisú", price: "$4.500" },
           { name: "Torta del Día", price: "$4.500" }
         ]
-      }
-    ]
-  },
-  {
-    id: "bebidas-calientes",
-    name: "Bebidas Calientes",
-    sections: [
+      },
       {
+        name: "Bebidas Calientes",
         items: [
           { name: "Té Normal", price: "$1.500" },
           { name: "Té de Sabor", price: "$1.800" },
@@ -452,10 +395,11 @@ export const menuData: MenuCategory[] = [
     ]
   },
   {
-    id: "tragos-preparados",
-    name: "Tragos Preparados",
+    id: "tragos",
+    name: "Tragos",
     sections: [
       {
+        name: "Tragos Preparados",
         items: [
           { name: "Mojito Cubano", price: "$6.500" },
           { name: "Mojito Frutal", price: "$6.800" },
@@ -477,14 +421,9 @@ export const menuData: MenuCategory[] = [
           { name: "Clavo Oxidado", price: "$9.500" },
           { name: "Sexo en las Rocas", price: "$6.500" }
         ]
-      }
-    ]
-  },
-  {
-    id: "cocteles-tragos",
-    name: "Cócteles y Tragos",
-    sections: [
+      },
       {
+        name: "Cócteles y Tragos",
         items: [
           { name: "Tequila Margarita o Blue", price: "$6.500" },
           { name: "Tom Collins", price: "$6.500" },
@@ -499,7 +438,7 @@ export const menuData: MenuCategory[] = [
     ]
   },
   {
-    id: "rocas",
+    id: "formato-a-las-rocas",
     name: "Formato a las Rocas",
     sections: [
       {
