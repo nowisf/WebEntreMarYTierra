@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, ChefHat, Flame, ChevronLeft, ChevronRight, Beer, GlassWater, Cake } from 'lucide-react';
+import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, ChefHat, Flame, ChevronLeft, ChevronRight, Beer, GlassWater, Cake, ChevronDown } from 'lucide-react';
 import { menuData, MenuCategory, MenuItem } from '../data/menuData';
 
 // Map 13 categories to beautiful icons
@@ -25,23 +25,19 @@ export default function MenuTabs() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
   const [showArrows, setShowArrows] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Scroll active tab into view in the horizontal tabs bar
+  // Click outside to close dropdown
   useEffect(() => {
-    const activeEl = document.getElementById(`tab-btn-${activeTab}`);
-    const container = document.getElementById('tabs-container');
-    if (activeEl && container) {
-      const containerWidth = container.clientWidth;
-      const elOffset = activeEl.offsetLeft;
-      const elWidth = activeEl.clientWidth;
-      
-      // Center the active tab in the container
-      container.scrollTo({
-        left: elOffset - (containerWidth / 2) + (elWidth / 2),
-        behavior: 'smooth'
-      });
-    }
-  }, [activeTab]);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Global search filtering
   const searchResults = useMemo(() => {
@@ -172,42 +168,67 @@ export default function MenuTabs() {
           </div>
         </div>
 
-        {/* Horizontal Scrollable Tabs */}
+        {/* Dropdown Select Tab Navigation */}
         {!searchQuery && (
-          <div className="relative mb-12">
-            {/* Scrollable Container */}
-            <div 
-              id="tabs-container"
-              className="flex gap-2.5 overflow-x-auto pb-4 scrollbar-none scroll-smooth -mx-6 px-6 md:mx-0 md:px-0 snap-x snap-mandatory"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {menuData.map((cat) => (
-                <button
-                  key={cat.id}
-                  id={`tab-btn-${cat.id}`}
-                  onClick={() => handleTabClick(cat.id)}
-                  className={`relative flex items-center gap-2.5 px-5 py-3 font-sans font-bold text-xs tracking-wider uppercase transition-all duration-300 rounded-full select-none snap-start shrink-0 whitespace-nowrap border cursor-pointer ${
-                    activeTab === cat.id
-                      ? 'text-cream border-terra z-10 font-black'
-                      : 'text-earth bg-cream-dark/30 hover:bg-cream-dark/80 border-earth/10'
-                  }`}
+          <div className="mb-12 relative flex justify-center">
+            <div ref={dropdownRef} className="relative w-full max-w-md z-30">
+              <label htmlFor="category-select" className="sr-only">Seleccionar Categoría</label>
+              <button
+                id="category-select"
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full flex items-center justify-between gap-4 px-6 py-4 bg-cream-dark/60 hover:bg-cream-dark/90 border border-earth/10 focus:border-terra/40 focus:outline-none rounded-xl text-earth font-sans font-bold text-sm tracking-wide uppercase transition-all duration-300 shadow-sm cursor-pointer select-none"
+                aria-haspopup="listbox"
+                aria-expanded={isOpen}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-terra">
+                    {categoryIcons[activeTab]}
+                  </span>
+                  <span className="truncate">{currentCategory.name}</span>
+                </div>
+                <motion.span
+                  animate={{ rotate: isOpen ? 180 : 0 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
+                  className="text-earth-light/60 shrink-0"
                 >
-                  {categoryIcons[cat.id]}
-                  <span>{cat.name}</span>
-                  {activeTab === cat.id && (
-                    <motion.div
-                      layoutId="activeTabIndicator"
-                      className="absolute inset-0 bg-terra rounded-full -z-10"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                </button>
-              ))}
+                  <ChevronDown size={18} />
+                </motion.span>
+              </button>
+
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 4, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute left-0 right-0 max-h-[380px] overflow-y-auto bg-cream-dark/98 backdrop-blur-md border border-earth/15 rounded-xl shadow-xl z-50 scrollbar-none snap-y"
+                  >
+                    <div className="py-2 px-2 flex flex-col gap-1">
+                      {menuData.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => {
+                            handleTabClick(cat.id);
+                            setIsOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-3.5 font-sans font-bold text-xs tracking-wider uppercase text-left transition-all duration-300 rounded-lg cursor-pointer select-none snap-start ${
+                            activeTab === cat.id
+                              ? 'bg-terra text-cream'
+                              : 'text-earth hover:bg-earth/5'
+                          }`}
+                        >
+                          <span className={activeTab === cat.id ? 'text-cream' : 'text-terra shrink-0'}>
+                            {categoryIcons[cat.id]}
+                          </span>
+                          <span className="truncate">{cat.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            
-            {/* Soft fade gradients on edges for visual hint that it scrolls */}
-            <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-cream to-transparent pointer-events-none md:hidden" />
-            <div className="absolute left-0 top-0 bottom-4 w-12 bg-gradient-to-r from-cream to-transparent pointer-events-none md:hidden" />
           </div>
         )}
 

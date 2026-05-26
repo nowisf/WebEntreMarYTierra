@@ -229,20 +229,18 @@ const Footer = () => (
         </ScrollReveal>
       </div>
 
-      <ScrollReveal>
-        <div className="rounded-lg overflow-hidden mb-12">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2486.8!2d-73.2456!3d-39.8142!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9615ed9b9b9b9b9b%3A0x0!2sCarlos+Anwandter+511%2C+Valdivia%2C+Los+R%C3%ADos%2C+Chile!5e0!3m2!1ses!2scl!4v1700000000000"
-            width="100%"
-            height="280"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Ubicación Entre Mar y Tierra, Valdivia"
-          />
-        </div>
-      </ScrollReveal>
+      <div className="rounded-lg overflow-hidden mb-12">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2486.8!2d-73.2456!3d-39.8142!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9615ed9b9b9b9b9b%3A0x0!2sCarlos+Anwandter+511%2C+Valdivia%2C+Los+R%C3%ADos%2C+Chile!5e0!3m2!1ses!2scl!4v1700000000000"
+          width="100%"
+          height="280"
+          style={{ border: 0 }}
+          allowFullScreen
+          loading="eager"
+          referrerPolicy="no-referrer-when-downgrade"
+          title="Ubicación Entre Mar y Tierra, Valdivia"
+        />
+      </div>
 
       <div className="border-t border-earth/10 pt-8 text-center text-earth-light/40 text-xs">
         <p>&copy; {new Date().getFullYear()} Entre Mar y Tierra, Valdivia. Todos los derechos reservados.</p>
