@@ -12,6 +12,7 @@ const Gallery = () => {
   const [current, setCurrent] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const [expandedImage, setExpandedImage] = useState<number | null>(null);
+  const [openedFromCarousel, setOpenedFromCarousel] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const preloadedRef = useRef(false);
@@ -120,7 +121,18 @@ const Gallery = () => {
     <>
       <section ref={sectionRef} className="relative bg-earth py-16 md:py-20">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-serif font-black text-cream text-center mb-10">Galería</h2>
+          <div className="flex flex-row items-center justify-between border-b border-cream/10 pb-6 mb-10">
+            <h2 className="text-3xl md:text-4xl font-serif font-black text-cream">Galería</h2>
+            <button
+              onClick={() => {
+                setOpenedFromCarousel(false);
+                setLightbox(true);
+              }}
+              className="px-5 py-2.5 bg-cream/10 hover:bg-cream/20 border border-cream/20 hover:border-cream/40 text-cream font-sans text-xs tracking-wider uppercase transition-all duration-300 rounded-full cursor-pointer select-none"
+            >
+              Ver Galería Completa
+            </button>
+          </div>
 
           <div className="relative flex items-center">
             <button
@@ -143,8 +155,8 @@ const Gallery = () => {
                       className="aspect-[4/3] rounded-lg overflow-hidden cursor-pointer group"
                       onClick={() => {
                         if (!dragStartRef.current) {
+                          setOpenedFromCarousel(true);
                           setExpandedImage(idx);
-                          setLightbox(true);
                         }
                       }}
                     >
@@ -185,6 +197,7 @@ const Gallery = () => {
         </div>
       </section>
 
+      {/* Grid Lightbox */}
       <AnimatePresence>
         {lightbox && (
           <motion.div
@@ -197,17 +210,17 @@ const Gallery = () => {
           >
             <div className="flex justify-between items-center px-6 py-4">
               <h3 className="text-cream font-serif font-bold text-lg">Galería</h3>
-              <button className="text-cream/60 hover:text-cream p-2 transition-colors" aria-label="Cerrar">
+              <button className="text-cream/60 hover:text-cream p-2 transition-colors cursor-pointer" aria-label="Cerrar" onClick={closeLightbox}>
                 <X size={24} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 pb-6">
+            <div className="flex-1 overflow-y-auto px-4 pb-6 scrollbar-none">
               <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {dishes.map((dish, idx) => (
                   <button
                     key={idx}
-                    className="relative group rounded-lg overflow-hidden text-left"
+                    className="relative group rounded-lg overflow-hidden text-left cursor-pointer"
                     onClick={(e) => { e.stopPropagation(); setExpandedImage(idx); }}
                   >
                     <img
@@ -222,26 +235,46 @@ const Gallery = () => {
                 ))}
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            <AnimatePresence>
-              {expandedImage !== null && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="fixed inset-0 z-[110] bg-bark flex items-center justify-center p-6"
-                  onClick={(e) => { e.stopPropagation(); setExpandedImage(null); }}
-                >
-                  <img
-                    src={`https://res.cloudinary.com/${cloudName}/image/upload/w_1920,h_1080,c_limit,f_auto,q_auto/${dishes[expandedImage].publicId}`}
-                    alt={dishes[expandedImage].caption}
-                    className="max-w-full max-h-[85vh] object-contain"
-                  />
-                  <p className="absolute bottom-6 left-0 right-0 text-center text-cream/70 font-serif text-base">{dishes[expandedImage].caption}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+      {/* Single Image Lightbox */}
+      <AnimatePresence>
+        {expandedImage !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[110] bg-bark flex items-center justify-center p-6"
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpandedImage(null);
+              if (openedFromCarousel) {
+                setOpenedFromCarousel(false);
+              }
+            }}
+          >
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpandedImage(null);
+                if (openedFromCarousel) {
+                  setOpenedFromCarousel(false);
+                }
+              }}
+              className="absolute top-6 right-6 text-cream/60 hover:text-cream p-2.5 transition-colors cursor-pointer z-[120]"
+              aria-label="Cerrar imagen"
+            >
+              <X size={28} />
+            </button>
+            <img
+              src={`https://res.cloudinary.com/${cloudName}/image/upload/w_1920,h_1080,c_limit,f_auto,q_auto/${dishes[expandedImage].publicId}`}
+              alt={dishes[expandedImage].caption}
+              className="max-w-full max-h-[85vh] object-contain select-none pointer-events-none"
+            />
+            <p className="absolute bottom-6 left-0 right-0 text-center text-cream/70 font-serif text-base select-none">{dishes[expandedImage].caption}</p>
           </motion.div>
         )}
       </AnimatePresence>
