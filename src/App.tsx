@@ -116,7 +116,7 @@ const Navbar = () => {
 };
 
 const Hero = () => (
-  <section id="inicio" className="relative h-screen flex items-end overflow-hidden">
+  <section id="inicio" className="relative h-screen flex items-end overflow-hidden bg-bark">
     <div className="absolute inset-0">
       <img
         src={`https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/w_1920,h_1080,c_fill,g_auto,f_auto,q_auto/fachada_entre_mar_y_tierra_valdivia_1_iodei8`}
