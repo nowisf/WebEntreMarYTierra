@@ -226,7 +226,7 @@ const Footer = () => (
             <h4 className="font-sans font-bold text-earth text-sm tracking-wide uppercase mb-6">Ubícanos</h4>
             <div className="flex items-start gap-3 text-earth-light/70">
               <MapPin className="text-terra mt-0.5 shrink-0" size={18} />
-              <p className="text-sm leading-relaxed">Carlos Anwandter 511,<br />Valdivia, Región de Los Ríos, Chile</p>
+              <p className="text-sm leading-relaxed">Carlos Anwandter 802,<br />Valdivia, Región de Los Ríos, Chile</p>
             </div>
             <div className="flex items-center gap-3 text-earth-light/70">
               <Phone className="text-terra shrink-0" size={18} />
@@ -251,7 +251,7 @@ const Footer = () => (
 
       <div className="rounded-lg overflow-hidden mb-12">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2486.8!2d-73.2456!3d-39.8142!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9615ed9b9b9b9b9b%3A0x0!2sCarlos+Anwandter+511%2C+Valdivia%2C+Los+R%C3%ADos%2C+Chile!5e0!3m2!1ses!2scl!4v1700000000000"
+          src="https://maps.google.com/maps?q=Restaurant%20Entre%20Mar%20y%20Tierra%20Carlos%20Anwandter%20802%20Valdivia%20Chile&t=&z=16&ie=UTF8&iwloc=&output=embed"
           width="100%"
           height="280"
           style={{ border: 0 }}
