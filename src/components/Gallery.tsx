@@ -130,7 +130,7 @@ const Gallery = () => {
               }}
               className="px-5 py-2.5 bg-cream/10 hover:bg-cream/20 border border-cream/20 hover:border-cream/40 text-cream font-sans text-xs tracking-wider uppercase transition-all duration-300 rounded-full cursor-pointer select-none"
             >
-              Ver Galería Completa
+              Ver Galería
             </button>
           </div>
 
@@ -167,9 +167,6 @@ const Gallery = () => {
                         draggable={false}
                       />
                     </div>
-                    <p className="text-cream/50 text-xs md:text-sm font-serif text-center mt-3 truncate pointer-events-none">
-                      {dishes[idx].caption}
-                    </p>
                   </div>
                 ))}
               </div>
@@ -228,9 +225,6 @@ const Gallery = () => {
                       alt={dish.caption}
                       className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-bark/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                      <p className="text-cream font-serif font-bold text-sm">{dish.caption}</p>
-                    </div>
                   </button>
                 ))}
               </div>
@@ -274,7 +268,6 @@ const Gallery = () => {
               alt={dishes[expandedImage].caption}
               className="max-w-full max-h-[85vh] object-contain select-none pointer-events-none"
             />
-            <p className="absolute bottom-6 left-0 right-0 text-center text-cream/70 font-serif text-base select-none">{dishes[expandedImage].caption}</p>
           </motion.div>
         )}
       </AnimatePresence>
