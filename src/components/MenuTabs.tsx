@@ -283,6 +283,7 @@ export default function MenuTabs() {
     const scrollLeft = container.scrollLeft;
     let closestCatId = menuData[0].id;
     let minDiff = Infinity;
+    let targetX = 0;
 
     menuData.forEach((cat) => {
       const pageEl = document.getElementById(`category-page-${cat.id}`);
@@ -291,6 +292,7 @@ export default function MenuTabs() {
         if (diff < minDiff) {
           minDiff = diff;
           closestCatId = cat.id;
+          targetX = pageEl.offsetLeft;
         }
       }
     });
@@ -298,7 +300,19 @@ export default function MenuTabs() {
     if (closestCatId && activeTabRef.current !== closestCatId) {
       setActiveTab(closestCatId);
     }
-    alignWindowVerticallyCubic(); // Iniciar scroll automático vertical inmediatamente al soltar el scroll
+
+    const menuContent = document.getElementById('menu-content');
+    let targetY = window.pageYOffset;
+    if (menuContent) {
+      const rect = menuContent.getBoundingClientRect();
+      const yOffset = -90; // Espacio para el navbar sticky (90px)
+      targetY = rect.top + window.pageYOffset + yOffset;
+    }
+
+    // Tomar el control del scroll horizontal y vertical simultáneamente
+    // Usamos la curva easeInOutCubic para una alineación fluida y rápida en 450ms
+    isProgrammaticScrollRef.current = true;
+    animateDoubleScroll(targetY, targetX, 450, easeInOutCubic);
   };
 
   const handleTouchStart = () => {
@@ -363,7 +377,7 @@ export default function MenuTabs() {
       if (!isTouchingRef.current) {
         handleScrollRelease();
       }
-    }, 150);
+    }, 80);
   };
 
   // Alinear cuando se limpia la búsqueda para asegurar que el menú quede centrado
