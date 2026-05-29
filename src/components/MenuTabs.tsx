@@ -154,6 +154,9 @@ export default function MenuTabs() {
     const container = scrollContainerRef.current;
     if (!container) return;
 
+    // Desactivar temporalmente el scroll-snap del contenedor para un deslizamiento horizontal fluido y continuo (evita saltos página por página)
+    container.style.setProperty('scroll-snap-type', 'none');
+
     const startY = window.pageYOffset;
     const differenceY = targetY - startY;
 
@@ -220,6 +223,7 @@ export default function MenuTabs() {
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('mousedown', handleMouseDown);
       document.documentElement.style.scrollBehavior = originalScrollBehavior;
+      container.style.removeProperty('scroll-snap-type'); // Restaurar scroll-snap
     };
 
     window.addEventListener('wheel', handleWheel, { passive: true });
