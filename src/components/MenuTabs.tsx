@@ -476,11 +476,11 @@ export default function MenuTabs() {
               </motion.div>
             </div>
             ) : (
-              // Horizontal Book-Like Layout (Full-bleed on the right, left padding on desktop)
-              <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 items-start w-full px-6 lg:px-0 lg:pl-[max(1.5rem,calc((100vw-1152px)/2+1.5rem))]">
+              // Horizontal Book-Like Layout (Sidebar glued to the left, full-bleed on the right)
+              <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 items-start w-full pl-6 pr-6 lg:pr-0">
                 
                 {/* Left Column: Sticky Sidebar Categories (Desktop only) with subtle scroll cutoff indicators */}
-                <aside className="hidden lg:flex flex-col lg:w-[22%] sticky top-28 self-start max-h-[calc(100vh-140px)]">
+                <aside className="hidden lg:flex flex-col w-[260px] shrink-0 sticky top-28 self-start max-h-[calc(100vh-140px)]">
                   {/* Subtle top indicator line */}
                   <div className="h-[1px] bg-gradient-to-r from-transparent via-cream/15 to-transparent w-full mb-2 shrink-0" />
                   
@@ -529,7 +529,7 @@ export default function MenuTabs() {
                       : activeHeight 
                   }}
                   transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                  className="w-full lg:w-[78%] overflow-hidden relative"
+                  className="w-full lg:flex-1 overflow-hidden relative"
                 >
                   
                   {/* Left Navigation Arrow (Desktop only) */}
