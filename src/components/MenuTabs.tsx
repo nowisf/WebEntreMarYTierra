@@ -93,20 +93,60 @@ export default function MenuTabs() {
     scrollAnimationIdRef.current = requestAnimationFrame(step);
   };
 
-  // 1. Alineación vertical nativa (rápida y directa para clics en pestañas)
-  const alignWindowVerticallyNative = () => {
-    const menuContent = document.getElementById('menu-content');
-    if (menuContent) {
-      const rect = menuContent.getBoundingClientRect();
-      if (rect.top < 80 || rect.top > 100) {
-        const yOffset = -90; // Espacio para el navbar sticky (90px)
-        const y = rect.top + window.pageYOffset + yOffset;
-        window.scrollTo({
-          top: y,
-          behavior: 'smooth'
-        });
-      }
+  // Animar simultáneamente el scroll vertical de la ventana y el horizontal del contenedor
+  // Esto hace que ambos scrolls lleguen exactamente al mismo tiempo y con el mismo easing cúbico
+  const animateDoubleScroll = (targetY: number, targetX: number, duration: number = 600) => {
+    if (scrollAnimationIdRef.current) {
+      cancelAnimationFrame(scrollAnimationIdRef.current);
     }
+
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const startY = window.pageYOffset;
+    const differenceY = targetY - startY;
+
+    const startX = container.scrollLeft;
+    const differenceX = targetX - startX;
+
+    const startTime = performance.now();
+
+    const handleUserInteraction = () => {
+      if (scrollAnimationIdRef.current) {
+        cancelAnimationFrame(scrollAnimationIdRef.current);
+        scrollAnimationIdRef.current = null;
+      }
+      cleanupListeners();
+    };
+
+    const cleanupListeners = () => {
+      window.removeEventListener('wheel', handleUserInteraction);
+      window.removeEventListener('touchstart', handleUserInteraction);
+      window.removeEventListener('mousedown', handleUserInteraction);
+    };
+
+    window.addEventListener('wheel', handleUserInteraction, { passive: true });
+    window.addEventListener('touchstart', handleUserInteraction, { passive: true });
+    window.addEventListener('mousedown', handleUserInteraction, { passive: true });
+
+    const step = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      const easeProgress = easeInOutCubic(progress);
+      
+      window.scrollTo(0, startY + differenceY * easeProgress);
+      container.scrollTo(startX + differenceX * easeProgress, 0);
+
+      if (progress < 1) {
+        scrollAnimationIdRef.current = requestAnimationFrame(step);
+      } else {
+        cleanupListeners();
+        scrollAnimationIdRef.current = null;
+      }
+    };
+
+    scrollAnimationIdRef.current = requestAnimationFrame(step);
   };
 
   // 2. Alineación vertical cúbica (suave e interpolada para deslizamiento manual/swipe)
@@ -253,18 +293,22 @@ export default function MenuTabs() {
       isProgrammaticScrollRef.current = false;
     }, 850);
 
-    // Al hacer clic en una pestaña lateral, alineamos verticalmente de inmediato usando el scroll nativo
-    alignWindowVerticallyNative();
-
+    const menuContent = document.getElementById('menu-content');
     const container = scrollContainerRef.current;
-    if (container) {
-      const pageEl = document.getElementById(`category-page-${catId}`);
-      if (pageEl) {
-        container.scrollTo({
-          left: pageEl.offsetLeft,
-          behavior: 'smooth'
-        });
+    const pageEl = document.getElementById(`category-page-${catId}`);
+    
+    if (container && pageEl) {
+      const targetX = pageEl.offsetLeft;
+      let targetY = window.pageYOffset;
+      
+      if (menuContent) {
+        const rect = menuContent.getBoundingClientRect();
+        const yOffset = -90; // Espacio para el navbar sticky (90px)
+        targetY = rect.top + window.pageYOffset + yOffset;
       }
+      
+      // Animar ambos scrolls al mismo tiempo y con la misma duración para que lleguen juntos
+      animateDoubleScroll(targetY, targetX, 600);
     }
   };
 
