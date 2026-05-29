@@ -234,21 +234,22 @@ export default function MenuTabs() {
     const updateHeight = () => {
       const activeEl = document.getElementById(`category-page-${activeTab}`);
       if (activeEl) {
-        // Usamos scrollHeight en lugar de offsetHeight porque las tarjetas tienen su altura
-        // limitada dinámicamente a activeHeight, y scrollHeight nos da la altura natural sin limitar.
-        // Sumamos 2px por los bordes (superior e inferior).
-        setActiveHeight(activeEl.scrollHeight + 2);
+        // Al estar la pestaña activa en height: 'auto', scrollHeight siempre devolverá
+        // la altura natural de su contenido de forma fidedigna.
+        setActiveHeight(activeEl.scrollHeight);
       }
     };
 
     updateHeight();
     
-    // Pequeña espera para asegurar estabilidad en la renderización y fuentes
-    const timeoutId = setTimeout(updateHeight, 100);
+    // Esperas adicionales para asegurar estabilidad en la renderización y carga de fuentes
+    const t1 = setTimeout(updateHeight, 100);
+    const t2 = setTimeout(updateHeight, 300);
     
     window.addEventListener('resize', updateHeight);
     return () => {
-      clearTimeout(timeoutId);
+      clearTimeout(t1);
+      clearTimeout(t2);
       window.removeEventListener('resize', updateHeight);
     };
   }, [activeTab, searchQuery]);
@@ -518,7 +519,11 @@ export default function MenuTabs() {
 
                 {/* Right Column: Horizontal Scroll Pages with dynamic height transition */}
                 <motion.main 
-                  animate={{ height: activeHeight }}
+                  animate={{ 
+                    height: typeof activeHeight === 'number' 
+                      ? activeHeight + 24 
+                      : activeHeight 
+                  }}
                   transition={{ type: "spring", stiffness: 200, damping: 25 }}
                   className="w-full lg:w-3/4 overflow-hidden relative"
                 >
@@ -553,9 +558,9 @@ export default function MenuTabs() {
                       <motion.div
                         key={cat.id}
                         id={`category-page-${cat.id}`}
-                        animate={{ height: activeHeight }}
+                        animate={{ height: activeTab === cat.id ? 'auto' : activeHeight }}
                         transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                        className="w-[88vw] lg:w-[700px] xl:w-[840px] shrink-0 snap-center lg:snap-start bg-cream border border-earth/10 rounded-3xl p-6 md:p-10 shadow-2xl flex flex-col justify-between relative overflow-hidden text-earth transition-all duration-300 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)]"
+                        className="w-[88vw] lg:w-[700px] xl:w-[840px] shrink-0 snap-center lg:snap-start bg-cream border border-earth/10 rounded-3xl p-6 md:p-10 shadow-2xl flex flex-col justify-between relative overflow-hidden text-earth transition-[box-shadow] duration-300 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)]"
                       >
                         {/* Subtle Background Watermark Icon */}
                         <div className="absolute right-0 top-0 translate-x-16 -translate-y-16 text-earth/[0.03] pointer-events-none select-none w-80 h-80 rotate-12 flex items-center justify-center">
@@ -625,19 +630,19 @@ export default function MenuTabs() {
                     ))}
                   </div>
 
-                  {/* Horizontal Scroll Helper Indicator (Mobile only) */}
-                  <div className="flex lg:hidden justify-center items-center gap-2 mt-4 text-xs text-cream/50 font-sans italic">
-                    <span>Desliza para hojear</span>
-                    <motion.span 
-                      animate={{ x: [0, 5, 0] }} 
-                      transition={{ repeat: Infinity, duration: 1.5 }}
-                      className="text-terra-light font-bold"
-                    >
-                      &rarr;
-                    </motion.span>
-                  </div>
-
                 </motion.main>
+
+                {/* Horizontal Scroll Helper Indicator (Mobile only) */}
+                <div className="flex lg:hidden justify-center items-center gap-2 mt-4 text-xs text-cream/50 font-sans italic">
+                  <span>Desliza para hojear</span>
+                  <motion.span 
+                    animate={{ x: [0, 5, 0] }} 
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                    className="text-terra-light font-bold"
+                  >
+                    &rarr;
+                  </motion.span>
+                </div>
 
               </div>
             )}
