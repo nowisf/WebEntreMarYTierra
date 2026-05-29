@@ -356,8 +356,8 @@ export default function MenuTabs() {
   const clearSearch = () => setSearchQuery('');
 
   return (
-    <section id="menu" className="py-20 md:py-28 bg-bark text-cream scroll-mt-10 overflow-hidden relative">
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="menu" className="py-20 md:py-28 bg-bark text-cream scroll-mt-10 relative">
+      <div className="max-w-[1400px] mx-auto px-6">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 relative z-10">
@@ -476,7 +476,7 @@ export default function MenuTabs() {
               <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 items-start">
                 
                 {/* Left Column: Sticky Sidebar Categories (Desktop only) with subtle scroll cutoff indicators */}
-                <aside className="hidden lg:flex flex-col w-1/4 sticky top-28 self-start max-h-[calc(100vh-140px)]">
+                <aside className="hidden lg:flex flex-col lg:w-[22%] sticky top-28 self-start max-h-[calc(100vh-140px)]">
                   {/* Subtle top indicator line */}
                   <div className="h-[1px] bg-gradient-to-r from-transparent via-cream/15 to-transparent w-full mb-2 shrink-0" />
                   
@@ -525,7 +525,7 @@ export default function MenuTabs() {
                       : activeHeight 
                   }}
                   transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                  className="w-full lg:w-3/4 overflow-hidden relative"
+                  className="w-full lg:w-[78%] overflow-hidden relative"
                 >
                   
                   {/* Left Navigation Arrow (Desktop only) */}
