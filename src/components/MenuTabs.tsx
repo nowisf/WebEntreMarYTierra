@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, ChefHat, Flame, Beer, GlassWater, Cake, Menu } from 'lucide-react';
+import { Search, X, Fish, Beef, Coffee, Wine, Sparkles, Utensils, ChefHat, Flame, Beer, GlassWater, Cake, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
 import { menuData, MenuItem } from '../data/menuData';
 
 // Map 13 categories to beautiful icons
@@ -26,31 +26,38 @@ export default function MenuTabs() {
   const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // Intersection Observer for Scrollspy (desktop & mobile)
-  useEffect(() => {
-    if (searchQuery) return; // Disable scrollspy during search
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isProgrammaticScrollRef = useRef(false);
+  const programmaticScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const observerOptions = {
-      root: null,
-      rootMargin: '-20% 0px -75% 0px', // Trigger when the top of the category section enters the upper-middle of viewport
-      threshold: 0
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveTab(entry.target.id.replace('category-section-', ''));
-        }
-      });
-    }, observerOptions);
-
+  // Sincronizar el scroll horizontal con las pestañas de categorías (scrollspy bidireccional)
+  const handleContainerScroll = () => {
+    if (isProgrammaticScrollRef.current) return;
+    
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    const scrollLeft = container.scrollLeft;
+    
+    // Buscar qué página de categoría está más cerca del borde izquierdo de scroll actual
+    let closestCatId = menuData[0].id;
+    let minDiff = Infinity;
+    
     menuData.forEach((cat) => {
-      const el = document.getElementById(`category-section-${cat.id}`);
-      if (el) observer.observe(el);
+      const pageEl = document.getElementById(`category-page-${cat.id}`);
+      if (pageEl) {
+        const diff = Math.abs(pageEl.offsetLeft - scrollLeft);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestCatId = cat.id;
+        }
+      }
     });
-
-    return () => observer.disconnect();
-  }, [searchQuery]);
+    
+    if (closestCatId && activeTab !== closestCatId) {
+      setActiveTab(closestCatId);
+    }
+  };
 
   // Scroll active sidebar item into view inside the sticky container
   useEffect(() => {
@@ -71,6 +78,14 @@ export default function MenuTabs() {
       }
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    return () => {
+      if (programmaticScrollTimeoutRef.current) {
+        clearTimeout(programmaticScrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Global search filtering
   const searchResults = useMemo(() => {
@@ -99,33 +114,56 @@ export default function MenuTabs() {
 
   const handleTabClick = (catId: string) => {
     setActiveTab(catId);
-    const el = document.getElementById(`category-section-${catId}`);
-    if (el) {
-      // Offset scroll so it doesn't get covered by sticky navbar
-      const yOffset = -90; 
-      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+    
+    // Activar bandera para omitir actualizaciones del scroll spy durante la transición
+    isProgrammaticScrollRef.current = true;
+    if (programmaticScrollTimeoutRef.current) {
+      clearTimeout(programmaticScrollTimeoutRef.current);
+    }
+    programmaticScrollTimeoutRef.current = setTimeout(() => {
+      isProgrammaticScrollRef.current = false;
+    }, 850);
+
+    const container = scrollContainerRef.current;
+    if (container) {
+      const pageEl = document.getElementById(`category-page-${catId}`);
+      if (pageEl) {
+        container.scrollTo({
+          left: pageEl.offsetLeft,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
+  const scrollPage = (direction: number) => {
+    const currentIndex = menuData.findIndex(cat => cat.id === activeTab);
+    if (currentIndex === -1) return;
+    
+    const nextIndex = currentIndex + direction;
+    if (nextIndex >= 0 && nextIndex < menuData.length) {
+      handleTabClick(menuData[nextIndex].id);
     }
   };
 
   const clearSearch = () => setSearchQuery('');
 
   return (
-    <section id="menu" className="py-20 md:py-28 bg-cream scroll-mt-10">
+    <section id="menu" className="py-20 md:py-28 bg-bark text-cream scroll-mt-10 overflow-hidden relative">
       <div className="max-w-6xl mx-auto px-6">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 relative z-10">
           <div>
-            <h2 className="text-4xl md:text-5xl font-serif font-black text-earth leading-tight">Nuestra Carta</h2>
-            <p className="mt-3 text-earth-light font-sans text-base max-w-xl">
+            <h2 className="text-4xl md:text-5xl font-serif font-black text-cream leading-tight">Nuestra Carta</h2>
+            <p className="mt-3 text-cream/70 font-sans text-base max-w-xl">
               Sabores tradicionales de Valdivia, desde la abundancia del mar de nuestra costa hasta las ricas carnes de la tierra.
             </p>
           </div>
 
           {/* Search bar */}
           <div className="relative w-full md:w-80 shrink-0">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-earth-light/50">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-cream/40">
               <Search size={18} />
             </span>
             <input
@@ -135,12 +173,12 @@ export default function MenuTabs() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
               onBlur={() => setIsSearchFocused(false)}
-              className="w-full pl-10 pr-10 py-3 bg-cream-dark/50 border border-earth/10 focus:border-terra/40 focus:outline-none text-earth font-sans text-sm rounded-xl placeholder-earth-light/50 transition-all duration-300 shadow-sm"
+              className="w-full pl-10 pr-10 py-3 bg-cream-dark/10 border border-cream/15 focus:border-terra-light/40 focus:outline-none text-cream font-sans text-sm rounded-xl placeholder-cream/40 transition-all duration-300 shadow-inner"
             />
             {searchQuery && (
               <button
                 onClick={clearSearch}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-earth-light/50 hover:text-earth transition-colors"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-cream/40 hover:text-cream transition-colors cursor-pointer"
                 aria-label="Limpiar búsqueda"
               >
                 <X size={18} />
@@ -150,16 +188,17 @@ export default function MenuTabs() {
         </div>
 
         {/* Menu Content Area */}
-        <div id="menu-content" className="min-h-[400px]">
+        <div id="menu-content" className="min-h-[400px] relative z-10">
           <AnimatePresence mode="wait">
             {searchQuery ? (
-              // Search Results View
+              // Search Results View inside a styled cream card
               <motion.div
                 key="search-results"
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 15 }}
                 transition={{ duration: 0.3 }}
+                className="w-full max-w-4xl mx-auto bg-cream border border-earth/10 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden text-earth"
               >
                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-earth/10">
                   <h3 className="text-2xl font-serif font-bold text-earth">
@@ -167,56 +206,58 @@ export default function MenuTabs() {
                   </h3>
                   <button 
                     onClick={clearSearch}
-                    className="text-terra hover:underline font-sans text-sm font-semibold flex items-center gap-1"
+                    className="text-terra hover:underline font-sans text-sm font-semibold flex items-center gap-1 cursor-pointer"
                   >
                     Ver toda la carta
                   </button>
                 </div>
 
                 {searchResults.length > 0 ? (
-                  <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
-                    {searchResults.map(({ categoryName, sectionName, item }, idx) => (
-                      <motion.div
-                        key={`${item.name}-${idx}`}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.02 }}
-                        className="group flex flex-col justify-between py-5 border-b border-earth/10 hover:border-earth/20 transition-all duration-300"
-                      >
-                        <div>
-                          <div className="flex items-center gap-2 mb-1.5">
-                            <span className="text-[10px] tracking-wider uppercase font-bold px-2 py-0.5 bg-earth/5 text-earth/50 rounded">
-                              {categoryName}
-                            </span>
-                            {sectionName && (
-                              <span className="text-[10px] tracking-wider uppercase font-bold px-2 py-0.5 bg-earth/5 text-earth/40 rounded">
-                                {sectionName}
+                  <div className="max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
+                    <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
+                      {searchResults.map(({ categoryName, sectionName, item }, idx) => (
+                        <motion.div
+                          key={`${item.name}-${idx}`}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.02 }}
+                          className="group flex flex-col justify-between py-4 border-b border-earth/10 hover:border-earth/20 transition-all duration-300"
+                        >
+                          <div>
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <span className="text-[10px] tracking-wider uppercase font-bold px-2 py-0.5 bg-earth/5 text-earth/50 rounded">
+                                {categoryName}
                               </span>
+                              {sectionName && (
+                                <span className="text-[10px] tracking-wider uppercase font-bold px-2 py-0.5 bg-earth/5 text-earth/40 rounded">
+                                  {sectionName}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex justify-between items-start gap-4">
+                              <h4 className="font-sans font-bold text-earth text-base group-hover:text-terra transition-colors duration-300">
+                                {item.name}
+                              </h4>
+                              <span className="font-serif font-bold text-terra text-base shrink-0">
+                                {item.price}
+                              </span>
+                            </div>
+                            {item.desc && (
+                              <p className="text-earth-light/70 text-xs mt-1 max-w-xl font-light italic">
+                                {item.desc}
+                              </p>
                             )}
                           </div>
-                          <div className="flex justify-between items-start gap-4">
-                            <h4 className="font-sans font-bold text-earth text-lg group-hover:text-terra transition-colors duration-300">
-                              {item.name}
-                            </h4>
-                            <span className="font-serif font-bold text-terra text-lg shrink-0">
-                              {item.price}
-                            </span>
-                          </div>
-                          {item.desc && (
-                            <p className="text-earth-light/70 text-sm mt-1 max-w-xl font-light italic">
-                              {item.desc}
-                            </p>
-                          )}
-                        </div>
-                      </motion.div>
-                    ))}
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-20 bg-cream-dark/50 rounded-lg border border-dashed border-earth/10">
                     <p className="text-earth-light/60 font-serif text-lg">No encontramos platos que coincidan con tu búsqueda.</p>
                     <button
                       onClick={clearSearch}
-                      className="mt-4 px-6 py-2.5 bg-terra hover:bg-terra-hover text-cream font-sans text-xs tracking-wider uppercase transition-colors"
+                      className="mt-4 px-6 py-2.5 bg-terra hover:bg-terra-hover text-cream font-sans text-xs tracking-wider uppercase transition-colors cursor-pointer"
                     >
                       Mostrar todo el menú
                     </button>
@@ -224,24 +265,24 @@ export default function MenuTabs() {
                 )}
               </motion.div>
             ) : (
-              // Two-Column Layout (Desktop sticky sidebar + continuous list of categories)
-              <div className="flex flex-col lg:flex-row gap-12 items-start">
+              // Horizontal Book-Like Layout (Left Sticky Sidebar on Desktop + Horizontal Pages on Right)
+              <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 items-start">
                 
                 {/* Left Column: Sticky Sidebar Categories (Desktop only) */}
-                <aside id="sidebar-container" className="hidden lg:block w-1/4 sticky top-28 self-start max-h-[calc(100vh-140px)] overflow-y-auto pr-4 scrollbar-none relative">
+                <aside id="sidebar-container" className="hidden lg:block w-1/4 sticky top-28 self-start max-h-[calc(100vh-140px)] overflow-y-auto pr-2 scrollbar-none relative">
                   <div className="flex flex-col gap-1.5 py-2">
                     {menuData.map((cat) => (
                       <button
                         key={cat.id}
                         id={`sidebar-btn-${cat.id}`}
                         onClick={() => handleTabClick(cat.id)}
-                        className={`relative flex items-center gap-3 px-4 py-3 font-sans font-bold text-xs text-left tracking-wider uppercase transition-all duration-300 rounded-xl cursor-pointer select-none ${
+                        className={`relative flex items-center gap-3 px-4 py-3.5 font-sans font-bold text-xs text-left tracking-wider uppercase transition-all duration-300 rounded-xl cursor-pointer select-none ${
                           activeTab === cat.id
                             ? 'text-cream z-10 font-black'
-                            : 'text-earth hover:bg-earth/5 hover:text-earth-mid'
+                            : 'text-cream/70 hover:bg-cream/5 hover:text-cream'
                         }`}
                       >
-                        <span className={activeTab === cat.id ? 'text-cream shrink-0' : 'text-terra shrink-0'}>
+                        <span className={activeTab === cat.id ? 'text-cream shrink-0' : 'text-terra-light shrink-0'}>
                           {categoryIcons[cat.id]}
                         </span>
                         <span className="truncate">{cat.name}</span>
@@ -257,63 +298,121 @@ export default function MenuTabs() {
                   </div>
                 </aside>
 
-                {/* Right Column: Continuous categories listing */}
-                <main className="w-full lg:w-3/4 space-y-20">
-                  {menuData.map((cat) => (
-                    <section 
-                      key={cat.id} 
-                      id={`category-section-${cat.id}`}
-                      className="scroll-mt-28"
-                    >
-                      <div className="relative pb-4 mb-8">
-                        <h3 className="text-2xl md:text-3xl font-serif font-black text-earth flex items-center gap-3">
-                          <span className="text-terra shrink-0">{categoryIcons[cat.id]}</span>
-                          {cat.name}
-                        </h3>
-                        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-earth/10" />
-                        <div className="absolute bottom-0 left-0 w-20 h-[3px] bg-terra" />
-                      </div>
+                {/* Right Column: Horizontal Scroll Pages */}
+                <main className="w-full lg:w-3/4 overflow-hidden relative">
+                  
+                  {/* Left Navigation Arrow (Desktop only) */}
+                  <button 
+                    onClick={() => scrollPage(-1)}
+                    className="hidden xl:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-cream/90 hover:bg-cream border border-earth/10 text-earth p-3.5 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+                    disabled={activeTab === menuData[0].id}
+                    aria-label="Página anterior"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
 
-                      <div className="space-y-12">
-                        {cat.sections.map((section, secIdx) => (
-                          <div key={secIdx}>
-                            {/* Section Header (Sub-sección) */}
-                            {section.name && (
-                              <h4 className="text-lg md:text-xl font-serif font-bold text-earth-mid mb-6 border-b border-earth/5 pb-2">
-                                {section.name}
-                              </h4>
-                            )}
+                  {/* Right Navigation Arrow (Desktop only) */}
+                  <button 
+                    onClick={() => scrollPage(1)}
+                    className="hidden xl:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-cream/90 hover:bg-cream border border-earth/10 text-earth p-3.5 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+                    disabled={activeTab === menuData[menuData.length - 1].id}
+                    aria-label="Siguiente página"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
 
-                            {/* Section Items Grid */}
-                            <div className="grid md:grid-cols-2 gap-x-12 gap-y-2">
-                              {section.items.map((item, itemIdx) => (
-                                <div
-                                  key={itemIdx}
-                                  className="group flex flex-col justify-between py-4 border-b border-earth/10 hover:border-earth/20 transition-all duration-300"
-                                >
-                                  <div>
-                                    <div className="flex justify-between items-start gap-4">
-                                      <h4 className="font-sans font-bold text-earth text-lg group-hover:text-terra transition-colors duration-300">
-                                        {item.name}
-                                      </h4>
-                                      <span className="font-serif font-bold text-terra text-lg shrink-0">
-                                        {item.price}
-                                      </span>
-                                    </div>
-                                    {item.desc && (
-                                      <p className="text-earth-light/70 text-sm mt-1 max-w-xl font-light leading-relaxed">
-                                        {item.desc}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
+                  {/* Horizontal Scroll Pages Container */}
+                  <div 
+                    ref={scrollContainerRef}
+                    onScroll={handleContainerScroll}
+                    className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth w-full items-stretch pb-6 scrollbar-none gap-6 px-2 md:px-4"
+                  >
+                    {menuData.map((cat) => (
+                      <div
+                        key={cat.id}
+                        id={`category-page-${cat.id}`}
+                        className="w-[88vw] lg:w-[700px] xl:w-[840px] shrink-0 snap-center lg:snap-start bg-cream border border-earth/10 rounded-3xl p-6 md:p-10 shadow-2xl flex flex-col justify-between relative overflow-hidden text-earth transition-all duration-300 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)]"
+                      >
+                        {/* Subtle Background Watermark Icon */}
+                        <div className="absolute right-0 top-0 translate-x-16 -translate-y-16 text-earth/[0.03] pointer-events-none select-none w-80 h-80 rotate-12 flex items-center justify-center">
+                          {categoryIcons[cat.id] && (
+                            <div className="scale-[9]">
+                              {categoryIcons[cat.id]}
                             </div>
+                          )}
+                        </div>
+
+                        <div className="relative z-10 flex-grow">
+                          {/* Page Title */}
+                          <div className="border-b border-earth/10 pb-4 mb-8">
+                            <h3 className="text-2xl md:text-3xl font-serif font-black text-earth flex items-center gap-3">
+                              <span className="text-terra shrink-0">{categoryIcons[cat.id]}</span>
+                              {cat.name}
+                            </h3>
                           </div>
-                        ))}
+
+                          {/* Subsections & Items */}
+                          <div className="space-y-10">
+                            {cat.sections.map((section, secIdx) => (
+                              <div key={secIdx}>
+                                {section.name && (
+                                  <h4 className="text-base md:text-lg font-serif font-bold text-earth-mid mb-4 border-b border-earth/5 pb-1.5">
+                                    {section.name}
+                                  </h4>
+                                )}
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
+                                  {section.items.map((item, itemIdx) => (
+                                    <div
+                                      key={itemIdx}
+                                      className="group flex flex-col justify-between py-2.5 border-b border-earth/10 hover:border-earth/20 transition-all duration-300 animate-fadeIn"
+                                    >
+                                      <div>
+                                        <div className="flex justify-between items-start gap-4">
+                                          <h4 className="font-sans font-bold text-earth text-base group-hover:text-terra transition-colors duration-300">
+                                            {item.name}
+                                          </h4>
+                                          <span className="font-serif font-bold text-terra text-base shrink-0">
+                                            {item.price}
+                                          </span>
+                                        </div>
+                                        {item.desc && (
+                                          <p className="text-earth-light/70 text-xs mt-1 max-w-xl font-light leading-relaxed">
+                                            {item.desc}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Page Footer Inside the Sheet */}
+                        <div className="mt-12 pt-4 border-t border-earth/10 flex justify-between items-center text-xs text-earth-light/60 font-serif relative z-10">
+                          <span>Menú Entre Mar y Tierra</span>
+                          <span className="font-sans font-bold bg-earth/5 px-2.5 py-1 rounded-md text-earth/70">
+                            {menuData.indexOf(cat) + 1} / {menuData.length}
+                          </span>
+                        </div>
                       </div>
-                    </section>
-                  ))}
+                    ))}
+                  </div>
+
+                  {/* Horizontal Scroll Helper Indicator (Mobile only) */}
+                  <div className="flex lg:hidden justify-center items-center gap-2 mt-4 text-xs text-cream/50 font-sans italic">
+                    <span>Desliza para hojear</span>
+                    <motion.span 
+                      animate={{ x: [0, 5, 0] }} 
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                      className="text-terra-light font-bold"
+                    >
+                      &rarr;
+                    </motion.span>
+                  </div>
+
                 </main>
 
               </div>
@@ -322,8 +421,8 @@ export default function MenuTabs() {
         </div>
 
         {/* Footer Disclaimer */}
-        <div className="mt-20 pt-8 border-t border-earth/10 text-center">
-          <p className="italic text-earth-light/60 font-serif text-sm">
+        <div className="mt-20 pt-8 border-t border-cream/10 text-center relative z-10">
+          <p className="italic text-cream/45 font-serif text-sm">
             Menú sujeto a cambios de temporada.
           </p>
         </div>
