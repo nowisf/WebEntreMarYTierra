@@ -30,7 +30,6 @@ export default function MenuTabs() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isProgrammaticScrollRef = useRef(false);
   const programmaticScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollAnimationIdRef = useRef<number | null>(null);
 
   // Función matemática de atenuación: easeInOutCubic
@@ -142,15 +141,18 @@ export default function MenuTabs() {
     if (closestCatId && activeTab !== closestCatId) {
       setActiveTab(closestCatId);
     }
-
-    // Al deslizar (scroll manual), esperamos a que se asiente el carrusel (200ms) y alineamos con easeInOutCubic
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-    scrollTimeoutRef.current = setTimeout(() => {
-      alignWindowVerticallyCubic();
-    }, 200);
   };
+
+  // Auto-ajustar la alineación vertical de la ventana mediante easeInOutCubic inmediato al deslizar manualmente
+  useEffect(() => {
+    if (searchQuery) return;
+    
+    // Si fue por clic (programático), ya se alineó nativamente de inmediato en handleTabClick
+    if (isProgrammaticScrollRef.current) return;
+    
+    // Si fue manual, alinear de inmediato con la atenuación cúbica
+    alignWindowVerticallyCubic();
+  }, [activeTab, searchQuery]);
 
   // Ajustar dinámicamente la altura del contenedor principal basado en la página activa
   useEffect(() => {
@@ -199,9 +201,6 @@ export default function MenuTabs() {
     return () => {
       if (programmaticScrollTimeoutRef.current) {
         clearTimeout(programmaticScrollTimeoutRef.current);
-      }
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
       }
       if (scrollAnimationIdRef.current) {
         cancelAnimationFrame(scrollAnimationIdRef.current);
