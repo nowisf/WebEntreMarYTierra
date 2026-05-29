@@ -103,17 +103,17 @@ export default function MenuTabs() {
     }
   }, [activeTab]);
 
-  // Desplazar la ventana verticalmente al inicio del menú si está desalineado al cambiar de página
+  // Desplazar la ventana verticalmente al inicio de las hojas de la carta si está desalineado al cambiar de página
   useEffect(() => {
     if (searchQuery) return;
 
-    const menuSection = document.getElementById('menu');
-    if (menuSection) {
-      const rect = menuSection.getBoundingClientRect();
-      // Si el inicio del menú está muy arriba (oculto por scroll) o muy abajo, re-alinear
-      if (rect.top < -50 || rect.top > 150) {
+    const menuContent = document.getElementById('menu-content');
+    if (menuContent) {
+      const rect = menuContent.getBoundingClientRect();
+      // Si la parte superior de las hojas está muy arriba (oculta por scroll) o muy abajo, re-alinear
+      if (rect.top < -20 || rect.top > 100) {
         const yOffset = -90; // Espacio para el navbar sticky
-        const y = menuSection.offsetTop + yOffset;
+        const y = menuContent.offsetTop + yOffset;
         window.scrollTo({
           top: y,
           behavior: 'smooth'
