@@ -103,6 +103,25 @@ export default function MenuTabs() {
     }
   }, [activeTab]);
 
+  // Desplazar la ventana verticalmente al inicio del menú si está desalineado al cambiar de página
+  useEffect(() => {
+    if (searchQuery) return;
+
+    const menuSection = document.getElementById('menu');
+    if (menuSection) {
+      const rect = menuSection.getBoundingClientRect();
+      // Si el inicio del menú está muy arriba (oculto por scroll) o muy abajo, re-alinear
+      if (rect.top < -50 || rect.top > 150) {
+        const yOffset = -90; // Espacio para el navbar sticky
+        const y = menuSection.offsetTop + yOffset;
+        window.scrollTo({
+          top: y,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [activeTab, searchQuery]);
+
   useEffect(() => {
     return () => {
       if (programmaticScrollTimeoutRef.current) {
