@@ -356,9 +356,10 @@ export default function MenuTabs() {
   const clearSearch = () => setSearchQuery('');
 
   return (
-    <section id="menu" className="py-20 md:py-28 bg-bark text-cream scroll-mt-10 relative">
-      <div className="max-w-[1400px] mx-auto px-6">
-        
+    <section id="menu" className="py-20 md:py-28 bg-bark text-cream scroll-mt-10 relative overflow-x-clip">
+      
+      {/* Header Container aligned to page margins */}
+      <div className="max-w-6xl mx-auto px-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 relative z-10">
           <div>
@@ -393,20 +394,22 @@ export default function MenuTabs() {
             )}
           </div>
         </div>
+      </div>
 
-        {/* Menu Content Area */}
-        <div id="menu-content" className="min-h-[400px] relative z-10">
+      {/* Menu Content Area */}
+      <div id="menu-content" className="min-h-[400px] relative z-10 w-full">
           <AnimatePresence mode="wait">
             {searchQuery ? (
-              // Search Results View inside a styled cream card
-              <motion.div
-                key="search-results"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 15 }}
-                transition={{ duration: 0.3 }}
-                className="w-full max-w-4xl mx-auto bg-cream border border-earth/10 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden text-earth"
-              >
+              // Search Results View inside a styled cream card (aligned to page margins)
+              <div className="max-w-6xl mx-auto px-6">
+                <motion.div
+                  key="search-results"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 15 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full max-w-4xl mx-auto bg-cream border border-earth/10 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden text-earth"
+                >
                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-earth/10">
                   <h3 className="text-2xl font-serif font-bold text-earth">
                     Resultados para "{searchQuery}"
@@ -471,9 +474,10 @@ export default function MenuTabs() {
                   </div>
                 )}
               </motion.div>
+            </div>
             ) : (
-              // Horizontal Book-Like Layout (Left Sticky Sidebar on Desktop + Horizontal Pages on Right)
-              <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 items-start">
+              // Horizontal Book-Like Layout (Full-bleed on the right, left padding on desktop)
+              <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 items-start w-full px-6 lg:px-0 lg:pl-[max(1.5rem,calc((100vw-1152px)/2+1.5rem))]">
                 
                 {/* Left Column: Sticky Sidebar Categories (Desktop only) with subtle scroll cutoff indicators */}
                 <aside className="hidden lg:flex flex-col lg:w-[22%] sticky top-28 self-start max-h-[calc(100vh-140px)]">
@@ -650,7 +654,7 @@ export default function MenuTabs() {
         </div>
 
         {/* Footer Disclaimer */}
-        <div className="mt-20 pt-8 border-t border-cream/10 text-center relative z-10">
+        <div className="max-w-6xl mx-auto px-6 mt-20 pt-8 border-t border-cream/10 text-center relative z-10">
           <p className="italic text-cream/45 font-serif text-sm">
             Menú sujeto a cambios de temporada.
           </p>
@@ -729,7 +733,6 @@ export default function MenuTabs() {
           </div>
         )}
 
-      </div>
     </section>
   );
 }
