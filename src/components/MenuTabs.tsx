@@ -37,11 +37,6 @@ export default function MenuTabs() {
     activeTabRef.current = activeTab;
   }, [activeTab]);
 
-  // Gestión de gestos del usuario
-  const isTouchingRef = useRef(false);
-  const hasAlignedRef = useRef(false);
-  const scrollReleaseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   // Función matemática de atenuación: easeInOutCubic
   // Curva cúbica simétrica: acelera al inicio y desacelera suavemente al final
   const easeInOutCubic = (x: number): number => {
@@ -57,73 +52,6 @@ export default function MenuTabs() {
     const startY = window.pageYOffset;
     const difference = targetY - startY;
     const startTime = performance.now();
-    const container = scrollContainerRef.current;
-
-    // Desactivar temporalmente scroll smooth de HTML para evitar conflictos de suavizado nativo
-    const originalScrollBehavior = document.documentElement.style.scrollBehavior;
-    document.documentElement.style.scrollBehavior = 'auto';
-
-    const handleUserInteraction = () => {
-      if (scrollAnimationIdRef.current) {
-        cancelAnimationFrame(scrollAnimationIdRef.current);
-        scrollAnimationIdRef.current = null;
-      }
-      cleanupListeners();
-    };
-
-    // Cancelar solo si el scroll de la rueda es vertical e ignorar si ocurre dentro del contenedor horizontal (gesto de swipe)
-    const handleWheel = (e: WheelEvent) => {
-      if (container && container.contains(e.target as Node)) {
-        if (Math.abs(e.deltaY) > Math.abs(e.deltaX) * 2 && Math.abs(e.deltaY) > 5) {
-          handleUserInteraction();
-        }
-        return;
-      }
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && Math.abs(e.deltaY) > 2) {
-        handleUserInteraction();
-      }
-    };
-
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-      }
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        const deltaX = e.touches[0].clientX - touchStartX;
-        const deltaY = e.touches[0].clientY - touchStartY;
-        // Solo cancelar si el movimiento del dedo es predominantemente vertical
-        if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
-          handleUserInteraction();
-        }
-      }
-    };
-
-    const handleMouseDown = (e: MouseEvent) => {
-      if (container && container.contains(e.target as Node)) {
-        return;
-      }
-      handleUserInteraction();
-    };
-
-    const cleanupListeners = () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('mousedown', handleMouseDown);
-      document.documentElement.style.scrollBehavior = originalScrollBehavior;
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('mousedown', handleMouseDown, { passive: true });
 
     const step = (currentTime: number) => {
       const elapsed = currentTime - startTime;
@@ -136,7 +64,6 @@ export default function MenuTabs() {
       if (progress < 1) {
         scrollAnimationIdRef.current = requestAnimationFrame(step);
       } else {
-        cleanupListeners();
         scrollAnimationIdRef.current = null;
       }
     };
@@ -270,77 +197,6 @@ export default function MenuTabs() {
     }
   };
 
-  // Esta función se llama cuando el usuario suelta el scroll (touchend, mouseup o silencio de wheel en trackpad)
-  const handleScrollRelease = () => {
-    if (isProgrammaticScrollRef.current) return;
-    if (hasAlignedRef.current) return;
-
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    hasAlignedRef.current = true;
-
-    const scrollLeft = container.scrollLeft;
-    let closestCatId = menuData[0].id;
-    let minDiff = Infinity;
-    let targetX = 0;
-
-    menuData.forEach((cat) => {
-      const pageEl = document.getElementById(`category-page-${cat.id}`);
-      if (pageEl) {
-        const diff = Math.abs(pageEl.offsetLeft - scrollLeft);
-        if (diff < minDiff) {
-          minDiff = diff;
-          closestCatId = cat.id;
-          targetX = pageEl.offsetLeft;
-        }
-      }
-    });
-
-    if (closestCatId && activeTabRef.current !== closestCatId) {
-      setActiveTab(closestCatId);
-    }
-
-    const menuContent = document.getElementById('menu-content');
-    let targetY = window.pageYOffset;
-    if (menuContent) {
-      const rect = menuContent.getBoundingClientRect();
-      const yOffset = -90; // Espacio para el navbar sticky (90px)
-      targetY = rect.top + window.pageYOffset + yOffset;
-    }
-
-    // Tomar el control del scroll horizontal y vertical simultáneamente
-    // Usamos la curva easeInOutCubic para una alineación fluida y rápida en 450ms
-    isProgrammaticScrollRef.current = true;
-    animateDoubleScroll(targetY, targetX, 450, easeInOutCubic);
-  };
-
-  const handleTouchStart = () => {
-    isTouchingRef.current = true;
-    hasAlignedRef.current = false;
-  };
-
-  const handleTouchEnd = () => {
-    isTouchingRef.current = false;
-    handleScrollRelease();
-  };
-
-  const handleMouseDown = () => {
-    isTouchingRef.current = true;
-    hasAlignedRef.current = false;
-  };
-
-  const handleMouseUp = () => {
-    if (isTouchingRef.current) {
-      isTouchingRef.current = false;
-      handleScrollRelease();
-    }
-  };
-
-  const handleWheelStart = () => {
-    hasAlignedRef.current = false;
-  };
-
   // Sincronizar el scroll horizontal con las pestañas de categorías (scrollspy bidireccional)
   const handleContainerScroll = () => {
     if (isProgrammaticScrollRef.current) return;
@@ -367,25 +223,9 @@ export default function MenuTabs() {
     
     if (closestCatId && activeTabRef.current !== closestCatId) {
       setActiveTab(closestCatId);
+      alignWindowVerticallyCubic(); // Iniciar alineación vertical cúbica inmediatamente al cruzar el punto medio
     }
-
-    // Para trackpads: detectar cuando deja de haber eventos de scroll activos (usuario soltó)
-    if (scrollReleaseTimeoutRef.current) {
-      clearTimeout(scrollReleaseTimeoutRef.current);
-    }
-    scrollReleaseTimeoutRef.current = setTimeout(() => {
-      if (!isTouchingRef.current) {
-        handleScrollRelease();
-      }
-    }, 80);
   };
-
-  // Alinear cuando se limpia la búsqueda para asegurar que el menú quede centrado
-  useEffect(() => {
-    if (!searchQuery) {
-      alignWindowVerticallyCubic();
-    }
-  }, [searchQuery]);
 
   // Ajustar dinámicamente la altura del contenedor principal basado en la página activa
   useEffect(() => {
@@ -437,9 +277,6 @@ export default function MenuTabs() {
       }
       if (scrollAnimationIdRef.current) {
         cancelAnimationFrame(scrollAnimationIdRef.current);
-      }
-      if (scrollReleaseTimeoutRef.current) {
-        clearTimeout(scrollReleaseTimeoutRef.current);
       }
     };
   }, []);
@@ -707,13 +544,6 @@ export default function MenuTabs() {
                   <div 
                     ref={scrollContainerRef}
                     onScroll={handleContainerScroll}
-                    onTouchStart={handleTouchStart}
-                    onTouchEnd={handleTouchEnd}
-                    onTouchCancel={handleTouchEnd}
-                    onMouseDown={handleMouseDown}
-                    onMouseUp={handleMouseUp}
-                    onMouseLeave={handleMouseUp}
-                    onWheel={handleWheelStart}
                     className="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory w-full items-start pb-6 scrollbar-none gap-6 px-2 md:px-4 h-full"
                   >
                     {menuData.map((cat) => (
