@@ -30,9 +30,64 @@ export default function MenuTabs() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isProgrammaticScrollRef = useRef(false);
   const programmaticScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollAnimationIdRef = useRef<number | null>(null);
 
-  // Función reutilizable para alinear la ventana al inicio de las hojas crema
+  // Función matemática de atenuación: easeOutCirc
+  // Curva circular de desaceleración: inicia rápido y frena suavemente al final
+  const easeOutCirc = (x: number): number => {
+    return Math.sqrt(1 - Math.pow(x - 1, 2));
+  };
+
+  // Interpolación de scroll vertical personalizada y cancelable mediante interacciones del usuario
+  const animateScroll = (targetY: number, duration: number = 550) => {
+    // Cancelar cualquier animación de scroll activa previa
+    if (scrollAnimationIdRef.current) {
+      cancelAnimationFrame(scrollAnimationIdRef.current);
+    }
+
+    const startY = window.pageYOffset;
+    const difference = targetY - startY;
+    const startTime = performance.now();
+
+    // Detener la animación inmediatamente si el usuario interactúa
+    const handleUserInteraction = () => {
+      if (scrollAnimationIdRef.current) {
+        cancelAnimationFrame(scrollAnimationIdRef.current);
+        scrollAnimationIdRef.current = null;
+      }
+      cleanupListeners();
+    };
+
+    const cleanupListeners = () => {
+      window.removeEventListener('wheel', handleUserInteraction);
+      window.removeEventListener('touchmove', handleUserInteraction);
+      window.removeEventListener('mousedown', handleUserInteraction);
+    };
+
+    window.addEventListener('wheel', handleUserInteraction, { passive: true });
+    window.addEventListener('touchmove', handleUserInteraction, { passive: true });
+    window.addEventListener('mousedown', handleUserInteraction, { passive: true });
+
+    const step = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      const easeProgress = easeOutCirc(progress);
+      
+      window.scrollTo(0, startY + difference * easeProgress);
+
+      if (progress < 1) {
+        scrollAnimationIdRef.current = requestAnimationFrame(step);
+      } else {
+        cleanupListeners();
+        scrollAnimationIdRef.current = null;
+      }
+    };
+
+    scrollAnimationIdRef.current = requestAnimationFrame(step);
+  };
+
+  // Función para calcular y ejecutar el scroll vertical adaptado al inicio de las hojas crema
   const alignWindowVertically = () => {
     const menuContent = document.getElementById('menu-content');
     if (menuContent) {
@@ -40,11 +95,8 @@ export default function MenuTabs() {
       // Si el tope de las hojas de la carta está desalineado de su posición ideal (90px del tope del viewport)
       if (rect.top < 80 || rect.top > 100) {
         const yOffset = -90; // Espacio para el navbar sticky (90px)
-        const y = rect.top + window.pageYOffset + yOffset;
-        window.scrollTo({
-          top: y,
-          behavior: 'smooth'
-        });
+        const targetY = rect.top + window.pageYOffset + yOffset;
+        animateScroll(targetY, 550); // Animación con easeOutCirc
       }
     }
   };
@@ -76,16 +128,13 @@ export default function MenuTabs() {
     if (closestCatId && activeTab !== closestCatId) {
       setActiveTab(closestCatId);
     }
-
-    // Si el usuario está deslizando con el dedo o trackpad, esperar a que el scroll se detenga (asiente)
-    // para subir la pantalla suavemente y evitar jalones en medio del gesto
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-    scrollTimeoutRef.current = setTimeout(() => {
-      alignWindowVertically();
-    }, 200); // 200ms de inactividad indica que el gesto de scroll o snap ha terminado
   };
+
+  // Auto-ajustar la alineación vertical de la ventana cada vez que cambia la página activa
+  useEffect(() => {
+    if (searchQuery) return;
+    alignWindowVertically();
+  }, [activeTab, searchQuery]);
 
   // Ajustar dinámicamente la altura del contenedor principal basado en la página activa
   useEffect(() => {
@@ -135,8 +184,8 @@ export default function MenuTabs() {
       if (programmaticScrollTimeoutRef.current) {
         clearTimeout(programmaticScrollTimeoutRef.current);
       }
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
+      if (scrollAnimationIdRef.current) {
+        cancelAnimationFrame(scrollAnimationIdRef.current);
       }
     };
   }, []);
@@ -177,9 +226,6 @@ export default function MenuTabs() {
     programmaticScrollTimeoutRef.current = setTimeout(() => {
       isProgrammaticScrollRef.current = false;
     }, 850);
-
-    // Al hacer clic en pestaña, re-alineamos verticalmente de inmediato a la velocidad preferida
-    alignWindowVertically();
 
     const container = scrollContainerRef.current;
     if (container) {
