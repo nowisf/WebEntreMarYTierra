@@ -43,7 +43,7 @@ export default function MenuTabs() {
     return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
   };
 
-  // Interpolación de scroll vertical personalizada usando easeInOutCubic (cancelable por el usuario)
+  // Interpolación de scroll vertical personalizada usando easeInOutCubic (cancelable por gestos verticales)
   const animateScrollCubic = (targetY: number, duration: number = 650) => {
     if (scrollAnimationIdRef.current) {
       cancelAnimationFrame(scrollAnimationIdRef.current);
@@ -52,6 +52,57 @@ export default function MenuTabs() {
     const startY = window.pageYOffset;
     const difference = targetY - startY;
     const startTime = performance.now();
+
+    // Desactivar temporalmente scroll smooth de HTML
+    const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+
+    const handleUserInteraction = () => {
+      if (scrollAnimationIdRef.current) {
+        cancelAnimationFrame(scrollAnimationIdRef.current);
+        scrollAnimationIdRef.current = null;
+      }
+      cleanupListeners();
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      // Cancelar si es scroll vertical predominante
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && Math.abs(e.deltaY) > 2) {
+        handleUserInteraction();
+      }
+    };
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const deltaX = e.touches[0].clientX - touchStartX;
+        const deltaY = e.touches[0].clientY - touchStartY;
+        // Cancelar si es deslizamiento vertical predominante
+        if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
+          handleUserInteraction();
+        }
+      }
+    };
+
+    const cleanupListeners = () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      document.documentElement.style.scrollBehavior = originalScrollBehavior;
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
 
     const step = (currentTime: number) => {
       const elapsed = currentTime - startTime;
@@ -64,6 +115,7 @@ export default function MenuTabs() {
       if (progress < 1) {
         scrollAnimationIdRef.current = requestAnimationFrame(step);
       } else {
+        cleanupListeners();
         scrollAnimationIdRef.current = null;
       }
     };
@@ -222,6 +274,7 @@ export default function MenuTabs() {
     });
     
     if (closestCatId && activeTabRef.current !== closestCatId) {
+      activeTabRef.current = closestCatId; // Actualizar ref inmediatamente para bloquear ejecuciones síncronas sucesivas (evita tiritona)
       setActiveTab(closestCatId);
       alignWindowVerticallyCubic(); // Iniciar alineación vertical cúbica inmediatamente al cruzar el punto medio
     }
