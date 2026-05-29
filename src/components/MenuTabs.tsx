@@ -25,6 +25,7 @@ export default function MenuTabs() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [activeHeight, setActiveHeight] = useState<number | string>('auto');
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isProgrammaticScrollRef = useRef(false);
@@ -58,6 +59,29 @@ export default function MenuTabs() {
       setActiveTab(closestCatId);
     }
   };
+
+  // Ajustar dinámicamente la altura del contenedor principal basado en la página activa
+  useEffect(() => {
+    if (searchQuery) return;
+    
+    const updateHeight = () => {
+      const activeEl = document.getElementById(`category-page-${activeTab}`);
+      if (activeEl) {
+        setActiveHeight(activeEl.offsetHeight);
+      }
+    };
+
+    updateHeight();
+    
+    // Pequeña espera para asegurar estabilidad en la renderización y fuentes
+    const timeoutId = setTimeout(updateHeight, 100);
+    
+    window.addEventListener('resize', updateHeight);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', updateHeight);
+    };
+  }, [activeTab, searchQuery]);
 
   // Scroll active sidebar item into view inside the sticky container
   useEffect(() => {
@@ -268,38 +292,54 @@ export default function MenuTabs() {
               // Horizontal Book-Like Layout (Left Sticky Sidebar on Desktop + Horizontal Pages on Right)
               <div className="flex flex-col lg:flex-row gap-8 xl:gap-12 items-start">
                 
-                {/* Left Column: Sticky Sidebar Categories (Desktop only) */}
-                <aside id="sidebar-container" className="hidden lg:block w-1/4 sticky top-28 self-start max-h-[calc(100vh-140px)] overflow-y-auto pr-2 scrollbar-none relative">
-                  <div className="flex flex-col gap-1.5 py-2">
-                    {menuData.map((cat) => (
-                      <button
-                        key={cat.id}
-                        id={`sidebar-btn-${cat.id}`}
-                        onClick={() => handleTabClick(cat.id)}
-                        className={`relative flex items-center gap-3 px-4 py-3.5 font-sans font-bold text-xs text-left tracking-wider uppercase transition-all duration-300 rounded-xl cursor-pointer select-none ${
-                          activeTab === cat.id
-                            ? 'text-cream z-10 font-black'
-                            : 'text-cream/70 hover:bg-cream/5 hover:text-cream'
-                        }`}
-                      >
-                        <span className={activeTab === cat.id ? 'text-cream shrink-0' : 'text-terra-light shrink-0'}>
-                          {categoryIcons[cat.id]}
-                        </span>
-                        <span className="truncate">{cat.name}</span>
-                        {activeTab === cat.id && (
-                          <motion.div
-                            layoutId="activeSidebarIndicator"
-                            className="absolute inset-0 bg-terra rounded-xl -z-10"
-                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                          />
-                        )}
-                      </button>
-                    ))}
+                {/* Left Column: Sticky Sidebar Categories (Desktop only) with subtle scroll cutoff indicators */}
+                <aside className="hidden lg:flex flex-col w-1/4 sticky top-28 self-start max-h-[calc(100vh-140px)]">
+                  {/* Subtle top indicator line */}
+                  <div className="h-[1px] bg-gradient-to-r from-transparent via-cream/15 to-transparent w-full mb-2 shrink-0" />
+                  
+                  {/* Scrollable sidebar container */}
+                  <div 
+                    id="sidebar-container" 
+                    className="flex-1 overflow-y-auto pr-2 scrollbar-none"
+                  >
+                    <div className="flex flex-col gap-1.5 py-1">
+                      {menuData.map((cat) => (
+                        <button
+                          key={cat.id}
+                          id={`sidebar-btn-${cat.id}`}
+                          onClick={() => handleTabClick(cat.id)}
+                          className={`relative flex items-center gap-3 px-4 py-3.5 font-sans font-bold text-xs text-left tracking-wider uppercase transition-all duration-300 rounded-xl cursor-pointer select-none ${
+                            activeTab === cat.id
+                              ? 'text-cream z-10 font-black'
+                              : 'text-cream/70 hover:bg-cream/5 hover:text-cream'
+                          }`}
+                        >
+                          <span className={activeTab === cat.id ? 'text-cream shrink-0' : 'text-terra-light shrink-0'}>
+                            {categoryIcons[cat.id]}
+                          </span>
+                          <span className="truncate">{cat.name}</span>
+                          {activeTab === cat.id && (
+                            <motion.div
+                              layoutId="activeSidebarIndicator"
+                              className="absolute inset-0 bg-terra rounded-xl -z-10"
+                              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                            />
+                          )}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+
+                  {/* Subtle bottom indicator line */}
+                  <div className="h-[1px] bg-gradient-to-r from-transparent via-cream/15 to-transparent w-full mt-2 shrink-0" />
                 </aside>
 
-                {/* Right Column: Horizontal Scroll Pages */}
-                <main className="w-full lg:w-3/4 overflow-hidden relative">
+                {/* Right Column: Horizontal Scroll Pages with dynamic height transition */}
+                <motion.main 
+                  animate={{ height: activeHeight }}
+                  transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                  className="w-full lg:w-3/4 overflow-hidden relative"
+                >
                   
                   {/* Left Navigation Arrow (Desktop only) */}
                   <button 
@@ -325,13 +365,13 @@ export default function MenuTabs() {
                   <div 
                     ref={scrollContainerRef}
                     onScroll={handleContainerScroll}
-                    className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth w-full items-stretch pb-6 scrollbar-none gap-6 px-2 md:px-4"
+                    className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth w-full items-start pb-6 scrollbar-none gap-6 px-2 md:px-4 h-full"
                   >
                     {menuData.map((cat) => (
                       <div
                         key={cat.id}
                         id={`category-page-${cat.id}`}
-                        className="w-[88vw] lg:w-[700px] xl:w-[840px] shrink-0 snap-center lg:snap-start bg-cream border border-earth/10 rounded-3xl p-6 md:p-10 shadow-2xl flex flex-col justify-between relative overflow-hidden text-earth transition-all duration-300 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)]"
+                        className="w-[88vw] lg:w-[700px] xl:w-[840px] shrink-0 snap-center lg:snap-start bg-cream border border-earth/10 rounded-3xl p-6 md:p-10 shadow-2xl flex flex-col justify-between relative overflow-hidden text-earth transition-all duration-300 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] h-fit"
                       >
                         {/* Subtle Background Watermark Icon */}
                         <div className="absolute right-0 top-0 translate-x-16 -translate-y-16 text-earth/[0.03] pointer-events-none select-none w-80 h-80 rotate-12 flex items-center justify-center">
@@ -413,7 +453,7 @@ export default function MenuTabs() {
                     </motion.span>
                   </div>
 
-                </main>
+                </motion.main>
 
               </div>
             )}
