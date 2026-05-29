@@ -30,17 +30,17 @@ export default function MenuTabs() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isProgrammaticScrollRef = useRef(false);
   const programmaticScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollAnimationIdRef = useRef<number | null>(null);
 
-  // Función matemática de atenuación: easeOutCirc
-  // Curva circular de desaceleración: inicia rápido y frena suavemente al final
-  const easeOutCirc = (x: number): number => {
-    return Math.sqrt(1 - Math.pow(x - 1, 2));
+  // Función matemática de atenuación: easeInOutCubic
+  // Curva cúbica simétrica: acelera al inicio y desacelera suavemente al final
+  const easeInOutCubic = (x: number): number => {
+    return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
   };
 
-  // Interpolación de scroll vertical personalizada y cancelable mediante interacciones del usuario
-  const animateScroll = (targetY: number, duration: number = 550) => {
-    // Cancelar cualquier animación de scroll activa previa
+  // Interpolación de scroll vertical personalizada usando easeInOutCubic (cancelable por el usuario)
+  const animateScrollCubic = (targetY: number, duration: number = 650) => {
     if (scrollAnimationIdRef.current) {
       cancelAnimationFrame(scrollAnimationIdRef.current);
     }
@@ -49,7 +49,6 @@ export default function MenuTabs() {
     const difference = targetY - startY;
     const startTime = performance.now();
 
-    // Detener la animación inmediatamente si el usuario interactúa
     const handleUserInteraction = () => {
       if (scrollAnimationIdRef.current) {
         cancelAnimationFrame(scrollAnimationIdRef.current);
@@ -72,7 +71,7 @@ export default function MenuTabs() {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      const easeProgress = easeOutCirc(progress);
+      const easeProgress = easeInOutCubic(progress);
       
       window.scrollTo(0, startY + difference * easeProgress);
 
@@ -87,16 +86,31 @@ export default function MenuTabs() {
     scrollAnimationIdRef.current = requestAnimationFrame(step);
   };
 
-  // Función para calcular y ejecutar el scroll vertical adaptado al inicio de las hojas crema
-  const alignWindowVertically = () => {
+  // 1. Alineación vertical nativa (rápida y directa para clics en pestañas)
+  const alignWindowVerticallyNative = () => {
     const menuContent = document.getElementById('menu-content');
     if (menuContent) {
       const rect = menuContent.getBoundingClientRect();
-      // Si el tope de las hojas de la carta está desalineado de su posición ideal (90px del tope del viewport)
+      if (rect.top < 80 || rect.top > 100) {
+        const yOffset = -90; // Espacio para el navbar sticky (90px)
+        const y = rect.top + window.pageYOffset + yOffset;
+        window.scrollTo({
+          top: y,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
+  // 2. Alineación vertical cúbica (suave e interpolada para deslizamiento manual/swipe)
+  const alignWindowVerticallyCubic = () => {
+    const menuContent = document.getElementById('menu-content');
+    if (menuContent) {
+      const rect = menuContent.getBoundingClientRect();
       if (rect.top < 80 || rect.top > 100) {
         const yOffset = -90; // Espacio para el navbar sticky (90px)
         const targetY = rect.top + window.pageYOffset + yOffset;
-        animateScroll(targetY, 550); // Animación con easeOutCirc
+        animateScrollCubic(targetY, 650); // 650ms de duración con la curva easeInOutCubic
       }
     }
   };
@@ -128,13 +142,15 @@ export default function MenuTabs() {
     if (closestCatId && activeTab !== closestCatId) {
       setActiveTab(closestCatId);
     }
-  };
 
-  // Auto-ajustar la alineación vertical de la ventana cada vez que cambia la página activa
-  useEffect(() => {
-    if (searchQuery) return;
-    alignWindowVertically();
-  }, [activeTab, searchQuery]);
+    // Al deslizar (scroll manual), esperamos a que se asiente el carrusel (200ms) y alineamos con easeInOutCubic
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
+      alignWindowVerticallyCubic();
+    }, 200);
+  };
 
   // Ajustar dinámicamente la altura del contenedor principal basado en la página activa
   useEffect(() => {
@@ -184,6 +200,9 @@ export default function MenuTabs() {
       if (programmaticScrollTimeoutRef.current) {
         clearTimeout(programmaticScrollTimeoutRef.current);
       }
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
       if (scrollAnimationIdRef.current) {
         cancelAnimationFrame(scrollAnimationIdRef.current);
       }
@@ -226,6 +245,9 @@ export default function MenuTabs() {
     programmaticScrollTimeoutRef.current = setTimeout(() => {
       isProgrammaticScrollRef.current = false;
     }, 850);
+
+    // Al hacer clic en una pestaña lateral, alineamos verticalmente de inmediato usando el scroll nativo
+    alignWindowVerticallyNative();
 
     const container = scrollContainerRef.current;
     if (container) {
