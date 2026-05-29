@@ -32,6 +32,11 @@ export default function MenuTabs() {
   const programmaticScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollAnimationIdRef = useRef<number | null>(null);
 
+  const activeTabRef = useRef(activeTab);
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  }, [activeTab]);
+
   // Función matemática de atenuación: easeInOutCubic
   // Curva cúbica simétrica: acelera al inicio y desacelera suavemente al final
   const easeInOutCubic = (x: number): number => {
@@ -47,6 +52,11 @@ export default function MenuTabs() {
     const startY = window.pageYOffset;
     const difference = targetY - startY;
     const startTime = performance.now();
+    const container = scrollContainerRef.current;
+
+    // Desactivar temporalmente scroll smooth de HTML para evitar conflictos de suavizado nativo
+    const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
 
     const handleUserInteraction = () => {
       if (scrollAnimationIdRef.current) {
@@ -56,23 +66,59 @@ export default function MenuTabs() {
       cleanupListeners();
     };
 
-    // Solo cancelar si el movimiento de la rueda es predominantemente vertical (para ignorar el deslizamiento horizontal en trackpads)
+    // Cancelar solo si el scroll de la rueda es vertical e ignorar si ocurre dentro del contenedor horizontal (gesto de swipe)
     const handleWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      if (container && container.contains(e.target as Node)) {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX) * 2 && Math.abs(e.deltaY) > 5) {
+          handleUserInteraction();
+        }
+        return;
+      }
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && Math.abs(e.deltaY) > 2) {
         handleUserInteraction();
       }
     };
 
-    const cleanupListeners = () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleUserInteraction);
-      window.removeEventListener('mousedown', handleUserInteraction);
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
     };
 
-    // Usamos touchstart en lugar de touchmove para evitar la cancelación inmediata del scroll vertical durante un swipe activo
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const deltaX = e.touches[0].clientX - touchStartX;
+        const deltaY = e.touches[0].clientY - touchStartY;
+        // Solo cancelar si el movimiento del dedo es predominantemente vertical
+        if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
+          handleUserInteraction();
+        }
+      }
+    };
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (container && container.contains(e.target as Node)) {
+        return;
+      }
+      handleUserInteraction();
+    };
+
+    const cleanupListeners = () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('mousedown', handleMouseDown);
+      document.documentElement.style.scrollBehavior = originalScrollBehavior;
+    };
+
     window.addEventListener('wheel', handleWheel, { passive: true });
-    window.addEventListener('touchstart', handleUserInteraction, { passive: true });
-    window.addEventListener('mousedown', handleUserInteraction, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('mousedown', handleMouseDown, { passive: true });
 
     const step = (currentTime: number) => {
       const elapsed = currentTime - startTime;
@@ -94,8 +140,13 @@ export default function MenuTabs() {
   };
 
   // Animar simultáneamente el scroll vertical de la ventana y el horizontal del contenedor
-  // Esto hace que ambos scrolls lleguen exactamente al mismo tiempo y con el mismo easing cúbico
-  const animateDoubleScroll = (targetY: number, targetX: number, duration: number = 600) => {
+  // Admite una función de easing para personalizar la curva (p. ej. lineal o easeInOutCubic)
+  const animateDoubleScroll = (
+    targetY: number, 
+    targetX: number, 
+    duration: number = 600,
+    easing: (x: number) => number = easeInOutCubic
+  ) => {
     if (scrollAnimationIdRef.current) {
       cancelAnimationFrame(scrollAnimationIdRef.current);
     }
@@ -111,29 +162,76 @@ export default function MenuTabs() {
 
     const startTime = performance.now();
 
+    // Desactivar temporalmente scroll smooth de HTML para evitar conflictos de suavizado nativo
+    const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+
     const handleUserInteraction = () => {
       if (scrollAnimationIdRef.current) {
         cancelAnimationFrame(scrollAnimationIdRef.current);
         scrollAnimationIdRef.current = null;
       }
       cleanupListeners();
+      isProgrammaticScrollRef.current = false;
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      if (container && container.contains(e.target as Node)) {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX) * 2 && Math.abs(e.deltaY) > 5) {
+          handleUserInteraction();
+        }
+        return;
+      }
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && Math.abs(e.deltaY) > 2) {
+        handleUserInteraction();
+      }
+    };
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const deltaX = e.touches[0].clientX - touchStartX;
+        const deltaY = e.touches[0].clientY - touchStartY;
+        if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 5) {
+          handleUserInteraction();
+        }
+      }
+    };
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (container && container.contains(e.target as Node)) {
+        return;
+      }
+      handleUserInteraction();
     };
 
     const cleanupListeners = () => {
-      window.removeEventListener('wheel', handleUserInteraction);
-      window.removeEventListener('touchstart', handleUserInteraction);
-      window.removeEventListener('mousedown', handleUserInteraction);
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('mousedown', handleMouseDown);
+      document.documentElement.style.scrollBehavior = originalScrollBehavior;
     };
 
-    window.addEventListener('wheel', handleUserInteraction, { passive: true });
-    window.addEventListener('touchstart', handleUserInteraction, { passive: true });
-    window.addEventListener('mousedown', handleUserInteraction, { passive: true });
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('mousedown', handleMouseDown, { passive: true });
 
     const step = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      const easeProgress = easeInOutCubic(progress);
+      const easeProgress = easing(progress);
       
       window.scrollTo(0, startY + differenceY * easeProgress);
       container.scrollTo(startX + differenceX * easeProgress, 0);
@@ -143,6 +241,7 @@ export default function MenuTabs() {
       } else {
         cleanupListeners();
         scrollAnimationIdRef.current = null;
+        isProgrammaticScrollRef.current = false;
       }
     };
 
@@ -186,21 +285,18 @@ export default function MenuTabs() {
       }
     });
     
-    if (closestCatId && activeTab !== closestCatId) {
+    if (closestCatId && activeTabRef.current !== closestCatId) {
       setActiveTab(closestCatId);
+      alignWindowVerticallyCubic(); // Alinear verticalmente de forma inmediata al cambiar la página horizontalmente
     }
   };
 
-  // Auto-ajustar la alineación vertical de la ventana mediante easeInOutCubic inmediato al deslizar manualmente
+  // Alinear cuando se limpia la búsqueda para asegurar que el menú quede centrado
   useEffect(() => {
-    if (searchQuery) return;
-    
-    // Si fue por clic (programático), ya se alineó nativamente de inmediato en handleTabClick
-    if (isProgrammaticScrollRef.current) return;
-    
-    // Si fue manual, alinear de inmediato con la atenuación cúbica
-    alignWindowVerticallyCubic();
-  }, [activeTab, searchQuery]);
+    if (!searchQuery) {
+      alignWindowVerticallyCubic();
+    }
+  }, [searchQuery]);
 
   // Ajustar dinámicamente la altura del contenedor principal basado en la página activa
   useEffect(() => {
@@ -289,9 +385,10 @@ export default function MenuTabs() {
     if (programmaticScrollTimeoutRef.current) {
       clearTimeout(programmaticScrollTimeoutRef.current);
     }
+    // Timeout de respaldo por seguridad, la bandera se libera al terminar la animación
     programmaticScrollTimeoutRef.current = setTimeout(() => {
       isProgrammaticScrollRef.current = false;
-    }, 850);
+    }, 1000);
 
     const menuContent = document.getElementById('menu-content');
     const container = scrollContainerRef.current;
@@ -308,7 +405,8 @@ export default function MenuTabs() {
       }
       
       // Animar ambos scrolls al mismo tiempo y con la misma duración para que lleguen juntos
-      animateDoubleScroll(targetY, targetX, 600);
+      // Usamos una función lineal (x => x) para que la curva sea LINEAR si o si al clickear una pestaña
+      animateDoubleScroll(targetY, targetX, 600, (x) => x);
     }
   };
 
@@ -517,7 +615,7 @@ export default function MenuTabs() {
                   <div 
                     ref={scrollContainerRef}
                     onScroll={handleContainerScroll}
-                    className="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth w-full items-start pb-6 scrollbar-none gap-6 px-2 md:px-4 h-full"
+                    className="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory w-full items-start pb-6 scrollbar-none gap-6 px-2 md:px-4 h-full"
                   >
                     {menuData.map((cat) => (
                       <div
