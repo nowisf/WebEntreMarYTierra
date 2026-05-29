@@ -56,14 +56,22 @@ export default function MenuTabs() {
       cleanupListeners();
     };
 
+    // Solo cancelar si el movimiento de la rueda es predominantemente vertical (para ignorar el deslizamiento horizontal en trackpads)
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        handleUserInteraction();
+      }
+    };
+
     const cleanupListeners = () => {
-      window.removeEventListener('wheel', handleUserInteraction);
-      window.removeEventListener('touchmove', handleUserInteraction);
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleUserInteraction);
       window.removeEventListener('mousedown', handleUserInteraction);
     };
 
-    window.addEventListener('wheel', handleUserInteraction, { passive: true });
-    window.addEventListener('touchmove', handleUserInteraction, { passive: true });
+    // Usamos touchstart en lugar de touchmove para evitar la cancelación inmediata del scroll vertical durante un swipe activo
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('touchstart', handleUserInteraction, { passive: true });
     window.addEventListener('mousedown', handleUserInteraction, { passive: true });
 
     const step = (currentTime: number) => {
