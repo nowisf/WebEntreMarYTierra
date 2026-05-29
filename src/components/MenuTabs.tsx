@@ -110,10 +110,10 @@ export default function MenuTabs() {
     const menuContent = document.getElementById('menu-content');
     if (menuContent) {
       const rect = menuContent.getBoundingClientRect();
-      // Si la parte superior de las hojas está muy arriba (oculta por scroll) o muy abajo, re-alinear
-      if (rect.top < -20 || rect.top > 100) {
+      // Si la parte superior de las hojas está desalineada del tope ideal de visualización (90px del tope del viewport)
+      if (rect.top < 80 || rect.top > 100) {
         const yOffset = -90; // Espacio para el navbar sticky
-        const y = menuContent.offsetTop + yOffset;
+        const y = rect.top + window.pageYOffset + yOffset;
         window.scrollTo({
           top: y,
           behavior: 'smooth'
