@@ -37,6 +37,11 @@ export default function MenuTabs() {
     activeTabRef.current = activeTab;
   }, [activeTab]);
 
+  // Gestión de gestos del usuario
+  const isTouchingRef = useRef(false);
+  const hasAlignedRef = useRef(false);
+  const scrollReleaseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Función matemática de atenuación: easeInOutCubic
   // Curva cúbica simétrica: acelera al inicio y desacelera suavemente al final
   const easeInOutCubic = (x: number): number => {
@@ -265,6 +270,63 @@ export default function MenuTabs() {
     }
   };
 
+  // Esta función se llama cuando el usuario suelta el scroll (touchend, mouseup o silencio de wheel en trackpad)
+  const handleScrollRelease = () => {
+    if (isProgrammaticScrollRef.current) return;
+    if (hasAlignedRef.current) return;
+
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    hasAlignedRef.current = true;
+
+    const scrollLeft = container.scrollLeft;
+    let closestCatId = menuData[0].id;
+    let minDiff = Infinity;
+
+    menuData.forEach((cat) => {
+      const pageEl = document.getElementById(`category-page-${cat.id}`);
+      if (pageEl) {
+        const diff = Math.abs(pageEl.offsetLeft - scrollLeft);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestCatId = cat.id;
+        }
+      }
+    });
+
+    if (closestCatId && activeTabRef.current !== closestCatId) {
+      setActiveTab(closestCatId);
+    }
+    alignWindowVerticallyCubic(); // Iniciar scroll automático vertical inmediatamente al soltar el scroll
+  };
+
+  const handleTouchStart = () => {
+    isTouchingRef.current = true;
+    hasAlignedRef.current = false;
+  };
+
+  const handleTouchEnd = () => {
+    isTouchingRef.current = false;
+    handleScrollRelease();
+  };
+
+  const handleMouseDown = () => {
+    isTouchingRef.current = true;
+    hasAlignedRef.current = false;
+  };
+
+  const handleMouseUp = () => {
+    if (isTouchingRef.current) {
+      isTouchingRef.current = false;
+      handleScrollRelease();
+    }
+  };
+
+  const handleWheelStart = () => {
+    hasAlignedRef.current = false;
+  };
+
   // Sincronizar el scroll horizontal con las pestañas de categorías (scrollspy bidireccional)
   const handleContainerScroll = () => {
     if (isProgrammaticScrollRef.current) return;
@@ -291,8 +353,17 @@ export default function MenuTabs() {
     
     if (closestCatId && activeTabRef.current !== closestCatId) {
       setActiveTab(closestCatId);
-      alignWindowVerticallyCubic(); // Alinear verticalmente de forma inmediata al cambiar la página horizontalmente
     }
+
+    // Para trackpads: detectar cuando deja de haber eventos de scroll activos (usuario soltó)
+    if (scrollReleaseTimeoutRef.current) {
+      clearTimeout(scrollReleaseTimeoutRef.current);
+    }
+    scrollReleaseTimeoutRef.current = setTimeout(() => {
+      if (!isTouchingRef.current) {
+        handleScrollRelease();
+      }
+    }, 150);
   };
 
   // Alinear cuando se limpia la búsqueda para asegurar que el menú quede centrado
@@ -352,6 +423,9 @@ export default function MenuTabs() {
       }
       if (scrollAnimationIdRef.current) {
         cancelAnimationFrame(scrollAnimationIdRef.current);
+      }
+      if (scrollReleaseTimeoutRef.current) {
+        clearTimeout(scrollReleaseTimeoutRef.current);
       }
     };
   }, []);
@@ -619,6 +693,13 @@ export default function MenuTabs() {
                   <div 
                     ref={scrollContainerRef}
                     onScroll={handleContainerScroll}
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                    onTouchCancel={handleTouchEnd}
+                    onMouseDown={handleMouseDown}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                    onWheel={handleWheelStart}
                     className="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory w-full items-start pb-6 scrollbar-none gap-6 px-2 md:px-4 h-full"
                   >
                     {menuData.map((cat) => (
