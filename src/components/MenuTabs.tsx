@@ -30,6 +30,24 @@ export default function MenuTabs() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isProgrammaticScrollRef = useRef(false);
   const programmaticScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Función reutilizable para alinear la ventana al inicio de las hojas crema
+  const alignWindowVertically = () => {
+    const menuContent = document.getElementById('menu-content');
+    if (menuContent) {
+      const rect = menuContent.getBoundingClientRect();
+      // Si el tope de las hojas de la carta está desalineado de su posición ideal (90px del tope del viewport)
+      if (rect.top < 80 || rect.top > 100) {
+        const yOffset = -90; // Espacio para el navbar sticky (90px)
+        const y = rect.top + window.pageYOffset + yOffset;
+        window.scrollTo({
+          top: y,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
 
   // Sincronizar el scroll horizontal con las pestañas de categorías (scrollspy bidireccional)
   const handleContainerScroll = () => {
@@ -58,6 +76,15 @@ export default function MenuTabs() {
     if (closestCatId && activeTab !== closestCatId) {
       setActiveTab(closestCatId);
     }
+
+    // Si el usuario está deslizando con el dedo o trackpad, esperar a que el scroll se detenga (asiente)
+    // para subir la pantalla suavemente y evitar jalones en medio del gesto
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
+      alignWindowVertically();
+    }, 200); // 200ms de inactividad indica que el gesto de scroll o snap ha terminado
   };
 
   // Ajustar dinámicamente la altura del contenedor principal basado en la página activa
@@ -103,29 +130,13 @@ export default function MenuTabs() {
     }
   }, [activeTab]);
 
-  // Desplazar la ventana verticalmente al inicio de las hojas de la carta si está desalineado al cambiar de página
-  useEffect(() => {
-    if (searchQuery) return;
-
-    const menuContent = document.getElementById('menu-content');
-    if (menuContent) {
-      const rect = menuContent.getBoundingClientRect();
-      // Si la parte superior de las hojas está desalineada del tope ideal de visualización (90px del tope del viewport)
-      if (rect.top < 80 || rect.top > 100) {
-        const yOffset = -90; // Espacio para el navbar sticky
-        const y = rect.top + window.pageYOffset + yOffset;
-        window.scrollTo({
-          top: y,
-          behavior: 'smooth'
-        });
-      }
-    }
-  }, [activeTab, searchQuery]);
-
   useEffect(() => {
     return () => {
       if (programmaticScrollTimeoutRef.current) {
         clearTimeout(programmaticScrollTimeoutRef.current);
+      }
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
       }
     };
   }, []);
@@ -166,6 +177,9 @@ export default function MenuTabs() {
     programmaticScrollTimeoutRef.current = setTimeout(() => {
       isProgrammaticScrollRef.current = false;
     }, 850);
+
+    // Al hacer clic en pestaña, re-alineamos verticalmente de inmediato a la velocidad preferida
+    alignWindowVertically();
 
     const container = scrollContainerRef.current;
     if (container) {
