@@ -365,7 +365,7 @@ export default function MenuTabs() {
                   <div 
                     ref={scrollContainerRef}
                     onScroll={handleContainerScroll}
-                    className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth w-full items-start pb-6 scrollbar-none gap-6 px-2 md:px-4 h-full"
+                    className="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth w-full items-start pb-6 scrollbar-none gap-6 px-2 md:px-4 h-full"
                   >
                     {menuData.map((cat) => (
                       <div
