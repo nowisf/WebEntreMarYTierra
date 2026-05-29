@@ -234,7 +234,10 @@ export default function MenuTabs() {
     const updateHeight = () => {
       const activeEl = document.getElementById(`category-page-${activeTab}`);
       if (activeEl) {
-        setActiveHeight(activeEl.offsetHeight);
+        // Usamos scrollHeight en lugar de offsetHeight porque las tarjetas tienen su altura
+        // limitada dinámicamente a activeHeight, y scrollHeight nos da la altura natural sin limitar.
+        // Sumamos 2px por los bordes (superior e inferior).
+        setActiveHeight(activeEl.scrollHeight + 2);
       }
     };
 
@@ -547,10 +550,12 @@ export default function MenuTabs() {
                     className="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory w-full items-start pb-6 scrollbar-none gap-6 px-2 md:px-4 h-full"
                   >
                     {menuData.map((cat) => (
-                      <div
+                      <motion.div
                         key={cat.id}
                         id={`category-page-${cat.id}`}
-                        className="w-[88vw] lg:w-[700px] xl:w-[840px] shrink-0 snap-center lg:snap-start bg-cream border border-earth/10 rounded-3xl p-6 md:p-10 shadow-2xl flex flex-col justify-between relative overflow-hidden text-earth transition-all duration-300 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] h-fit"
+                        animate={{ height: activeHeight }}
+                        transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                        className="w-[88vw] lg:w-[700px] xl:w-[840px] shrink-0 snap-center lg:snap-start bg-cream border border-earth/10 rounded-3xl p-6 md:p-10 shadow-2xl flex flex-col justify-between relative overflow-hidden text-earth transition-all duration-300 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)]"
                       >
                         {/* Subtle Background Watermark Icon */}
                         <div className="absolute right-0 top-0 translate-x-16 -translate-y-16 text-earth/[0.03] pointer-events-none select-none w-80 h-80 rotate-12 flex items-center justify-center">
@@ -616,7 +621,7 @@ export default function MenuTabs() {
                             {menuData.indexOf(cat) + 1} / {menuData.length}
                           </span>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
 
